@@ -6,7 +6,126 @@
 
 %% Saved with string encoding Unicode (UTF-8) 
 
+@misc{vorlesung,
+  author       = {Konrad Rieck},
+  title        = {Lecture Slides: Machine Learning for Computer Security},
+  year         = {2024},
+  note         = {Technische Universität Berlin, Slide Deck},
+  howpublished = {\url{https://example.com/slides}},
+}
 
+@inproceedings{drebin,
+  added-at = {2021-02-01T00:00:00.000+0100},
+  author = {Arp, Daniel and Spreitzenbarth, Michael and Hubner, Malte and Gascon, Hugo and Rieck, Konrad},
+  biburl = {https://www.bibsonomy.org/bibtex/21804f3342677c21c883fd7125a733113/dblp},
+  booktitle = {NDSS},
+  crossref = {conf/ndss/2014},
+  ee = {https://www.ndss-symposium.org/ndss2014/drebin-effective-and-explainable-detection-android-malware-your-pocket},
+  interhash = {b2fa414b6ff7a5f2d7a762ef6cf92102},
+  intrahash = {1804f3342677c21c883fd7125a733113},
+  keywords = {dblp},
+  publisher = {The Internet Society},
+  timestamp = {2024-04-09T15:58:24.000+0200},
+  title = {DREBIN: Effective and Explainable Detection of Android Malware in Your Pocket.},
+  url = {http://dblp.uni-trier.de/db/conf/ndss/ndss2014.html#ArpSHGR14},
+  year = 2014
+}
+
+@misc{detectbert,
+      title={DetectBERT: Towards Full App-Level Representation Learning to Detect Android Malware}, 
+      author={Tiezhu Sun and Nadia Daoudi and Kisub Kim and Kevin Allix and Tegawendé F. Bissyandé and Jacques Klein},
+      year={2024},
+      eprint={2408.16353},
+      archivePrefix={arXiv},
+      primaryClass={cs.SE},
+      url={https://arxiv.org/abs/2408.16353}, 
+}
+
+@article{polymorhism,
+title = {Deceiving AI-based malware detection through polymorphic attacks},
+journal = {Computers in Industry},
+volume = {143},
+pages = {103751},
+year = {2022},
+issn = {0166-3615},
+doi = {https://doi.org/10.1016/j.compind.2022.103751},
+url = {https://www.sciencedirect.com/science/article/pii/S0166361522001488},
+author = {C. Catalano and A. Chezzi and M. Angelelli and F. Tommasi},
+keywords = {Malware detection, Convolutional Neural Network CNN, Polymorphic malware, Adversarial machine learning, Adversarial training},
+abstract = {Malware detection is one of the most important tasks in cybersecurity. Recently, increasing interest in Convolutional Neural Networks (CNN) and Machine Learning algorithms, which are widely used in image analysis and predictive modelling, led to their use in static malware classification and to the application of these powerful tools in computer industry and industrial internet of things. Many studies claim that the static malware detection approach, under well-defined conditions, can deliver fast and accurate malware classification results with relatively little human effort once the framework is implemented, relying solely on the binary content of the file. This becomes evident if we compare static malware detection to other techniques of dynamic nature. The focus of our research is to highlight strengths and weaknesses of CNNs used for static malware detection, starting from images obtained from byte-wise conversion of binary executable files to pixel images to critically analyze the assumptions underlying the performance of this type of technique.}
+}
+
+@inproceedings{obfuscation,
+  title={Impact of Code Obfuscation on Android Malware Detection based on Static and Dynamic Analysis.},
+  author={Bacci, Alessandro and Bartoli, Alberto and Martinelli, Fabio and Medvet, Eric and Mercaldo, Francesco and Visaggio, Corrado Aaron and others},
+  booktitle={ICISSP},
+  pages={379--385},
+  year={2018}
+}
+
+@misc{deobfuscation,
+      title={DOBF: A Deobfuscation Pre-Training Objective for Programming Languages}, 
+      author={Baptiste Roziere and Marie-Anne Lachaux and Marc Szafraniec and Guillaume Lample},
+      year={2021},
+      eprint={2102.07492},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2102.07492}, 
+}
+
+@inproceedings {transcend,
+author = {Roberto Jordaney and Kumar Sharad and Santanu K. Dash and Zhi Wang and Davide Papini and Ilia Nouretdinov and Lorenzo Cavallaro},
+title = {Transcend: Detecting Concept Drift in Malware Classification Models},
+booktitle = {26th USENIX Security Symposium (USENIX Security 17)},
+year = {2017},
+isbn = {978-1-931971-40-9},
+address = {Vancouver, BC},
+pages = {625--642},
+url = {https://www.usenix.org/conference/usenixsecurity17/technical-sessions/presentation/jordaney},
+publisher = {USENIX Association},
+month = aug
+}
+
+@inproceedings{androzoo,
+    author = {Allix, Kevin and Bissyand{\'e}, Tegawend{\'e} F. and Klein, Jacques and Le Traon, Yves},
+    title = {AndroZoo: Collecting Millions of Android Apps for the Research Community},
+    booktitle = {Proceedings of the 13th International Conference on Mining Software Repositories},
+    series = {MSR '16},
+    year = {2016},
+    isbn = {978-1-4503-4186-8},
+    location = {Austin, Texas},
+    pages = {468--471},
+    numpages = {4},
+    url = {http://doi.acm.org/10.1145/2901739.2903508},
+    doi = {10.1145/2901739.2903508},
+    acmid = {2903508},
+    publisher = {ACM},
+    address = {New York, NY, USA},
+    keywords = {APK, android applications, software repository},
+} 
+
+@misc{dexray,
+      title={DexRay: A Simple, yet Effective Deep Learning Approach to Android Malware Detection based on Image Representation of Bytecode}, 
+      author={Nadia Daoudi and Jordan Samhi and Abdoul Kader Kabore and Kevin Allix and Tegawendé F. Bissyandé and Jacques Klein},
+      year={2024},
+      eprint={2109.03326},
+      archivePrefix={arXiv},
+      primaryClass={cs.CR},
+      url={https://arxiv.org/abs/2109.03326}, 
+}
+
+@misc{dexbert,
+      title={DexBERT: Effective, Task-Agnostic and Fine-grained Representation Learning of Android Bytecode}, 
+      author={Tiezhu Sun and Kevin Allix and Kisub Kim and Xin Zhou and Dongsun Kim and David Lo and Tegawendé F. Bissyandé and Jacques Klein},
+      year={2023},
+      eprint={2212.05976},
+      archivePrefix={arXiv},
+      primaryClass={cs.SE},
+      url={https://arxiv.org/abs/2212.05976}, 
+}
+
+
+%% Below are examples:
 
 @inproceedings{LoesingMD10-tor,
 	Author = {Karsten Loesing and Steven J. Murdoch and Roger Dingledine},

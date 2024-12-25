@@ -1,0 +1,62 @@
+\chapter{Related Work} % Main chapter title
+
+\label{related_work} % For referencing the chapter elsewhere, use \ref{Chapter2}
+
+@TODO:  Summary:
+
+\section{Malware Detection}
+
+\subsection{Static, Dynamic, and Network Analysis}
+Malware detection approaches include static, dynamic, and network-based methods \cite{vorlesung}.
+While this thesis focuses on static analysis, it is worth briefly noting the other approaches for context.
+
+Static analysis examines APK features such as source code and binaries without executing the app.
+This makes it highly scalable and suitable for large-scale evaluations.
+Prior research like \cite{drebin} and \cite{detectbert} demonstrate the effectiveness and efficiency of static approaches.
+However, static analysis does face challenges, including evasion techniques like code obfuscation and polymorphism.
+
+Dynamic analysis, in contrast, observes malware behavior at runtime.
+Although it provides richer contextual insights, it requires significant resources and infrastructure and is vulnerable to other evasive strategies, such as sandbox detection.
+Similarly, network analysis examines communication patterns and data flows to identify malicious activity.
+
+Hybrid techniques that integrate these methods aim to combine their strengths while mitigating individual limitations.
+These, too, face challenges such as computational complexity and integration difficulties.
+This thesis, therefore, focuses solely on static analysis as a scalable and efficient approach for malware detection.
+
+\subsection{Evasion Techniques}
+Malware authors often employ evasion techniques to bypass detection mechanisms \cite{vorlesung}.
+In static analysis, common strategies include manipulating code structures through obfuscation \cite{obfuscation} and polymorphism \cite{polymorhism}.
+Obfuscation involves transforming code into a more complex or less readable form to conceal its true purpose, whereas polymorphism allows malware to dynamically change its appearance while maintaining its core functionality.
+These approaches exploit the limitations of analyzing code without running it.
+While dynamic and network based methods address some of these weaknesses, they introduce their own vulnerabilities, such as susceptibility to sandbox detection and reliance on communication pattern anomalies.
+Transformers ability to handle obfuscation and learn robust representations of static code helps mitigate some of these challenges \cite{deobfuscation}.
+
+\subsection{Concept Drift}
+Concept drift refers to the gradual evolution of malware patterns, which often leads to a decline in the performance of detection models over time.
+Models like Transcend \cite{transcend} have tackled this issue by introducing mechanisms to detect and adapt to concept drift during deployment.
+However, these methods are resource-intensive and may struggle to generalize across diverse datasets.
+Addressing concept drift remains a critical challenge for static Android malware detection and is one criteria used in this thesis.
+
+\subsection{Android Malware Detection}
+Detecting malware on the Android platform presents unique challenges and opportunities due to its open ecosystem and the high volume of apps and malware samples.
+The availability of many labeled datasets such as Androzoo, Drebin, Transcend???, and DexRay has driven research in this domain.
+
+Drebin \cite{drebin} represents a leap in Android malware detection, being both a dataset and an approach.
+As an SVM-based method, Drebin achieves remarkable results, significantly outperforming other approaches by detecting 94\% of malware samples at a false-positive rate of just 1%.
+This demonstrated the high effectiveness of machine learning-based static Android malware detection, striking a balance between accuracy and efficiency.
+The Drebin dataset itself provides labeled malware samples with rich feature representations extracted from APK files, such as permissions, intents, and network addresses, making it a foundational resource in the field.
+
+Transcend \cite{transcend}, on the other hand, introduced the critical concept of drift into Android malware detection.
+It highlights how models trained on older datasets like Drebin experience performance decay when applied to newer, evolving datasets.
+This evolution in malware characteristics, known as concept drift, underscores the need for adaptive retraining mechanisms.
+Transcend serves as a benchmark for evaluating the robustness of detection models over time and emphasizes the importance of building systems that can sustain detection accuracy in the face of changing malware landscapes.
+
+Androzoo \cite{androzoo} is a comprehensive repository containing millions of APKs sourced from various app stores and spanning over a decade of Android app development.
+The dataset provides significant scale and diversity, enabling researchers to analyze trends in malware evolution and assess the effectiveness of detection methods over time.
+In addition to the APKs there was work done on mining metadata for the APKs, enabling further research on the landscape of Android Apps.
+
+DetectBERT \cite{detectbert} is a novel transformer based approach to Android malware detection that builds upon DexBERT \cite{dexbert}, another transformer based model designed for class level analysis of Android Smali code.
+Using a Correlated Multiple Instance Learning (c-MIL) framework, DetectBERT aggregates Smali class embeddings of DexBERT into an app level representation.
+Evaluated on the DexRay \cite{dexray} dataset, which comprises 158,803 apps, DetectBERT reported competitive performance metrics, including 97\% accuracy and an F1 score of 97\% while also demonstrated robustness against concept drift, maintaining high detection rates when tested on newer malware samples.
+Additionally, DetectBERT reports to be computationally efficient, requiring only 2GB of GPU memory and achieving inference times of 0.005 seconds per app.
+
