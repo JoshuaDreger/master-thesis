@@ -1,0 +1,108 @@
+% Appendix C
+ 
+\chapter{Additional Plots}
+\label{appendiximages}
+\label{appendix-more-details-on-template}
+
+This appendix provides additional charts that can be helpfull fore more in depth understanding
+
+\section{Dataset Analysis}\label{AppendixDatasetAnalysis}
+
+\begin{figure*}[htb]
+    \centering
+    \begin{minipage}{1.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{A_Images/heatmap_sha256_overlaps_percentage.png}
+        \captionsetup{width=\textwidth}
+        \caption{\label{fig:dataset_overlap}
+        Overlap percentages among various Android malware datasets and Google Play metadata provided by \cite{gp_metadata}. 
+        The diagonal values represent 100\% overlap (self-comparison), 
+        while off-diagonal values highlight shared entries between datasets.
+        Notable is that DexRay-, Transcending-, and Drebin Malware are subsets of Androzoo,
+        but only partially of Androzoo malware.
+        }
+    \end{minipage}
+\end{figure*}
+
+\newpage
+
+\begin{figure*}[h]
+    \centering
+    \includegraphics[width=\widefigurewidth]{3_Methodology/dataset_size_distribution.png}
+    \caption{\label{fig:dataset_size_evaluation}
+    Temporal distribution of Android APKs across three datasets (Drebin, Transcend, and DexRay), 
+    categorized into goodware and malware.}
+\end{figure*}
+
+
+
+\begin{figure*}[b!]
+    \centering
+    \begin{minipage}{1.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{3_Methodology/java_class_boxplots.png}
+        \captionsetup{width=\textwidth}
+        \caption{\label{fig:java_class_boxplots}
+        The boxplot shows the distribution of Java classes in Android apps 
+        across the Drebin, Transcend, and DexRay datasets, 
+        split into Goodware and Malware. 
+        Drebin and Transcend have an similar java class distribution 
+        between Goodware and Malware.
+        The DexRay Dataset shows a high inbalance in the number of java classes 
+        between the two labels.
+        }
+    \end{minipage}
+\end{figure*}
+
+
+
+
+\chapter{Archive}
+
+\begin{table}
+    \caption{Java Statistics Summary for DexRay, Transcend, and Drebin}
+    \label{tab:statistics}
+    \centering
+    \footnotesize
+    \begin{tabular}{l c c c c c}
+        \toprule
+        \tabhead{Label} & \tabhead{Q1} & \tabhead{Q3} & \tabhead{Median} & \tabhead{Mean} & \tabhead{Number of Outliers} \\
+        \midrule
+        \multicolumn{6}{l}{\textbf{Drebin}} \\
+        Goodware & 19 & 176 & 60 & 161.83 & 13243 \\
+        Malware & 18 & 224 & 66 & 176.87 & 506 \\
+        \midrule
+        \multicolumn{6}{l}{\textbf{Transcending}} \\
+        Goodware & 854 & 2899 & 1800 & 1941.68 & 847 \\
+        Malware & 52 & 2244 & 738 & 1312.26 & 996 \\
+        \midrule
+        \multicolumn{6}{l}{\textbf{DexRay}} \\
+        Goodware & 1035 & 3084 & 2007 & 2132.37 & 277 \\
+        Malware & 7 & 11 & 11 & 239.98 & 14308 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}
+    \caption{Smali Statistics Summary for DexRay, Transcend, and Drebin}
+    \label{tab:statistics}
+    \centering
+    \footnotesize
+    \begin{tabular}{l c c c c c}
+        \toprule
+        \tabhead{Label} & \tabhead{Q1} & \tabhead{Q3} & \tabhead{Median} & \tabhead{Mean} & \tabhead{Number of Outliers} \\
+        \midrule
+        \multicolumn{6}{l}{\textbf{DexRay}} \\
+        Goodware & 16106 & 41352 & 29546 & 28603.12 & 0 \\
+        Malware & 445 & 817 & 598 & 4113.59 & 13704 \\
+        \midrule
+        \multicolumn{6}{l}{\textbf{Transcend}} \\
+        Goodware & 13145 & 40372 & 25364 & 27234.10 & 1 \\
+        Malware & 764 & 25015 & 7057 & 15912.92 & 605 \\
+        \midrule
+        \multicolumn{6}{l}{\textbf{Drebin}} \\
+        Goodware & 331 & 2353 & 901 & 2275.87 & 14288 \\
+        Malware & 173 & 2316 & 805 & 2161.74 & 899 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
