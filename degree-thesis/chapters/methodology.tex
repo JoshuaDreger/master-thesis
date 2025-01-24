@@ -274,7 +274,137 @@ This leads to the conclusion, that the DexRay dataset is generally insufficient 
 
 \section{Baseline Creation}
 
-\subsection{Naive Approaches}
+When generating a baseline for android malware detection, concept drift hast to be considered.
+\cite{transcend} showed that there is a concept drift for android malware.
+In order to train a model that is robust again this concept drift, 
+the authors propose to split the data into train and test data in a particular way.
+The training data should be from before the test data, 
+while keeping the same label ratio in between splits.  
+The reason for this is to make sure that the model does not train on features of the data, 
+that are prone to concept drift.
+The punishment for this is maximized if the train and test data is sequential.
+In order to account for and validate the concept drift in the domain of malware detection,
+the following baselines where both created on a dataset that is split randomly into train and test subsets
+and also split time based as proposed by \cite{transcend}.
+The data is split into 80\% test and 20\% train data for both splittin Approaches.
+
+\subsection{Non Transformer Approaches}
+
+\begin{table*}[t!]
+    \caption{\label{tab:treestump} Tree Stump (balanced class weights) results by dataset, feature, and split.}
+    \centering
+    \small
+    {\renewcommand{\arraystretch}{1.5} % Increase row height for better readability
+        \begin{tabularx}{\linewidth}{@{}l l l r r r r r@{}} % Adjusted alignment: l for text, r for numbers
+            \toprule
+            \textbf{Dataset} & \textbf{Feature} & \textbf{Split} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1 Score} & \textbf{Threshold} \\
+            \midrule
+            Drebin & Java Classes & random     & 10.16\% & 4.40\% & 99.07\% & 8.43\% & 2.5 \\
+                   & Java Classes & time based & 7.39\%  & 4.31\% & 96.49\% & 8.24\% & 3.5 \\
+                   & Smali Classes & random    & 76.01\% & 6.14\% & 33.24\% & 10.37\% & 247.5 \\
+                   & Smali Classes & time based & 7.15\%  & 4.31\% & 96.76\% & 8.24\% & 33.5 \\
+                   & APK size     & random     & 10.94\% & 4.32\% & 96.10\% & 8.27\% & 59676 \\
+                   & APK size & time based & 6.62\%  & 4.35\% & 98.38\% & 8.33\% & 59676 \\
+            \midrule
+            Transcending & Java Classes & random     & 90.05\% & 70.58\% & 23.38\% & 35.12\% & 17.5 \\
+                         & Java Classes & time based & 82.63\% & 36.58\% & 68.35\% & 47.65\% & 967.5 \\
+                         & Smali Classes & random    & 77.63\% & 27.44\% & 57.28\% & 37.10\% & 9699.5 \\
+                         & Smali Classes & time based & 77.61\% & 31.23\% & 77.85\% & 44.58\% & 15101.5 \\
+                         & APK size     & random     & 18.75\% & 11.90\% & 94.56\% & 21.14\% & 57904190 \\
+                         & APK size & time based & 39.27\% & 11.77\% & 65.44\% & 19.96\% & 11054373 \\
+            \midrule
+            DexRay & Java Classes & random     & 92.05\% & 93.04\% & 86.37\% & 89.58\% & 90.5 \\
+                   & Java Classes & time based & 94.74\% & 89.67\% & 97.65\% & 93.49\% & 90.5 \\
+                   & Smali Classes & random    & 92.10\% & 93.19\% & 86.36\% & 89.64\% & 1395.5 \\
+                   & Smali Classes & time based & 94.59\% & 89.35\% & 97.63\% & 93.31\% & 1395.5 \\
+                   & APK size     & random     & 48.53\% & 42.97\% & 91.97\% & 58.58\% & 79432704 \\
+                   & APK size & time based & 44.78\% & 39.11\% & 76.98\% & 51.87\% & 67843648 \\
+            \bottomrule
+        \end{tabularx}
+    }
+\end{table*}
+
+A very simple classifier is a decision tree stump.
+This stump is just learning a threshold based on the training data and then using it to predict a label given some data.
+To make it even simpler for creating a first baseline, in Table \ref{tab:treestump} only one feature is considered when calculating the tree stump.
+The table shows how the drebin dataset is most robust to this very basic approach.
+For drebin, neither of the considered features (Number of Java Classes, Number of Smali Classes \& Size of the packaged APK)
+is fit dor successfully seperating the labels with one threshold.
+On the first glance it seems unlikely, that the thresholds for the APK sizes are constant over both different dataset splits.
+Since the threshold is changing for some other random splits (by using other random seeds),
+this phenomenon seems to be due to chance.
+This seems unlikely at first but can be explained by how the threshold is derived from the training data
+using the gini coefficient.
+
+On the Transcending dataset, the Tree Stump approach achieve better results.
+Here the concept drift can be observed by the changing thresholds between the split methods.
+
+The most shocking result is, that the DexRay dataset can be solved with an F1 score of 93,49\% 
+with a simple Tree stump approach on the Java classes feature.
+This shows how inbalanced the dataset is and how it is unfit for evaluatig models that rely on codebased features.
+Another interesting observation is that for both the java and the Smali Classes the Thresholds stay consistent.
+These Thresholds also hold consistent for different random splits.
+
+Overall the table \ref{tab:treestump} shows how different the datasets are, 
+even though all of them are build for the same objective of evaluating android malware detection models.
+The same model achieves an F1 score of 8\% on Drebin, 48\% on Transcend and 93\% on Dexray.
+
+\begin{table}[t]
+    \caption{\label{tab:randomforest}%
+    Random Forest (n\_estimators=300, max\_depth=25) results by dataset and split. Features include Java Classes, Smali Classes, and APK Size.}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{@{}llcccc@{}} % Removes outer horizontal margins
+    \toprule
+    \textbf{Dataset} & \textbf{Split} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1 Score} \\ \cmidrule(r){1-2} \cmidrule(lr){3-6}
+    Drebin         & random     & 98.08\% & 91.69\% & 59.42\% & 72.11\% \\
+                   & time based & 95.66\% & 48.69\% & 13.40\% & 21.02\% \\ \addlinespace
+    Transcending   & random     & 94.53\% & 88.74\% & 60.19\% & 71.73\% \\
+                   & time based & 90.07\% & 60.47\% & 40.94\% & 48.83\% \\ \addlinespace
+    DexRay         & random     & 96.87\% & 97.75\% & 94.25\% & 95.97\% \\
+                   & time based & 93.95\% & 87.34\% & 98.63\% & 92.64\% \\
+    \bottomrule
+    \end{tabular}%
+    }
+\end{table}
+    
+\begin{table}[b]
+    \caption{\label{tab:decisiontreepermissions}%
+    Decision Tree (max\_depth=15) results by dataset and split. Features include Permissions.}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{@{}llcccc@{}}
+    \toprule
+    \textbf{Dataset} & \textbf{Split} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1 Score} \\ \cmidrule(r){1-2} \cmidrule(lr){3-6}
+    Drebin         & random     & 95.74\% & 49.77\% & 90.17\% & 64.14\% \\
+                   & time based & 87.60\% & 24.83\% & 92.54\% & 39.15\% \\ \addlinespace
+    Transcending   & random     & 78.03\% & 32.79\% & 85.77\% & 47.44\% \\
+                   & time based & 72.26\% & 26.17\% & 76.91\% & 39.05\% \\ \addlinespace
+    DexRay         & random     & 90.25\% & 87.34\% & 88.07\% & 87.70\% \\
+                   & time based & 83.66\% & 71.80\% & 95.01\% & 81.79\% \\
+    \bottomrule
+    \end{tabular}%
+    }
+\end{table}
+    
+\begin{table}[b!]
+    \caption{\label{tab:decisiontree30}%
+    Decision Tree (max\_depth=30) results by dataset and split. Features include Java Classes, Smali Classes, APK Size, and Permissions.}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{@{}llcccc@{}}
+    \toprule
+    \textbf{Dataset} & \textbf{Split} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1 Score} \\ \cmidrule(r){1-2} \cmidrule(lr){3-6}
+    Drebin         & random     & 98.58\% & 81.41\% & 86.04\% & 83.66\% \\
+                   & time based & 94.89\% & 45.17\% & 86.96\% & 59.45\% \\ \addlinespace
+    Transcending   & random     & 95.03\% & 76.65\% & 82.03\% & 79.25\% \\
+                   & time based & 92.21\% & 65.16\% & 69.95\% & 67.47\% \\ \addlinespace
+    DexRay         & random     & 96.95\% & 96.36\% & 95.89\% & 96.13\% \\
+                   & time based & 94.88\% & 89.14\% & 98.78\% & 93.72\% \\
+    \bottomrule
+    \end{tabular}%
+    }
+\end{table}
+    
+    
+  
 
 \subsection{DetectBERT}
 

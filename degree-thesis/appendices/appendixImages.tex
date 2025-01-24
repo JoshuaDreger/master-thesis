@@ -56,6 +56,41 @@ This appendix provides additional charts that can be helpfull fore more in depth
 
 
 
+\begin{table}[]
+    \caption{\label{tab:decisiontree}%
+    Decision Tree (max\_depth=15) results by dataset and split. Features include Java Classes, Smali Classes, and APK Size.}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{@{}llcccc@{}}
+    \toprule
+    \textbf{Dataset} & \textbf{Split} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1 Score} \\ \cmidrule(r){1-2} \cmidrule(lr){3-6}
+    Drebin         & random     & 90.98\% & 28.13\% & 74.56\% & 40.84\% \\
+                   & time based & 80.94\% & 8.99\%  & 37.50\% & 14.50\% \\ \addlinespace
+    Transcending   & random     & 88.34\% & 49.57\% & 70.86\% & 58.33\% \\
+                   & time based & 85.36\% & 40.46\% & 56.30\% & 47.09\% \\ \addlinespace
+    DexRay         & random     & 96.20\% & 96.56\% & 93.74\% & 95.13\% \\
+                   & time based & 92.82\% & 85.35\% & 98.30\% & 91.37\% \\
+    \bottomrule
+    \end{tabular}%
+    }
+    \end{table}
+    
+\begin{table}[]
+    \caption{\label{tab:decisiontreecombined}%
+    Decision Tree (max\_depth=15) results by dataset and split. Features include Java Classes, Smali Classes, APK Size, and Permissions.}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{@{}llcccc@{}}
+    \toprule
+    \textbf{Dataset} & \textbf{Split} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1 Score} \\ \cmidrule(r){1-2} \cmidrule(lr){3-6}
+    Drebin         & random     & 97.10\% & 60.59\% & 89.35\% & 72.21\% \\
+                    & time based & 90.66\% & 30.55\% & 91.55\% & 45.81\% \\ \addlinespace
+    Transcending   & random     & 92.55\% & 62.81\% & 87.03\% & 72.96\% \\
+                    & time based & 91.15\% & 59.08\% & 76.14\% & 66.53\% \\ \addlinespace
+    DexRay         & random     & 96.87\% & 96.82\% & 95.21\% & 96.01\% \\
+                    & time based & 96.10\% & 91.74\% & 98.82\% & 95.15\% \\
+    \bottomrule
+    \end{tabular}%
+    }
+\end{table}
 
 \chapter{Archive}
 
