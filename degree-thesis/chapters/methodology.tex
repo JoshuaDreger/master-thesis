@@ -287,12 +287,15 @@ In order to account for and validate the concept drift in the domain of malware 
 the following baselines where both created on a dataset that is split randomly into train and test subsets
 and also split time based as proposed by \cite{transcend}.
 The data is split into 80\% test and 20\% train data for both splittin Approaches.
+The evaluation is always done in a balanced manner, penalizing mistakes on the less frequent malware label more.
 
 \subsection{Non Transformer Approaches}
 
 \begin{table*}[t!]
-    \caption{\label{tab:treestump} Tree Stump (balanced class weights) results by dataset, feature, and split.}
-    \centering
+    \begin{minipage}{1.5\textwidth}
+        \captionsetup{width=\textwidth}
+        \caption{\label{tab:treestump} Tree Stump (balanced class weights) results by dataset, feature, and split.}
+    \end{minipage}
     \small
     {\renewcommand{\arraystretch}{1.5} % Increase row height for better readability
         \begin{tabularx}{\linewidth}{@{}l l l r r r r r@{}} % Adjusted alignment: l for text, r for numbers
@@ -366,8 +369,31 @@ The same model achieves an F1 score of 8\% on Drebin, 48\% on Transcend and 93\%
     \end{tabular}%
     }
 \end{table}
+
+Applying a more sophisticated model on all three of the features, increses the performance.
+This can be shown by evaluating a decisiontree \ref{tab:decisiontree} or a generally higher performing randomforest \ref{tab:randomforest} model. 
+Table \ref{tab:randomforest} shows how an random forrest algorithm achieves around 70\% F1 score on Drebin and Transcending when trained and tested with the randomly split data.
+The concept drift of both Drebin and Transcending becomes apperent by lower performance on the time based split data.
+Here Drebin shows a even steper decline compared to Transcending showing more concept drift of the data.
+When evaluating the randomforest on dexray, both the random and timebased splits show a very high F1 score of 92\%-96\%.
+it is noteworthy that a treestump on either Java or Smali classes \ref{tab:treestump} performes better than the random forest on the timebased split data.
+This shows that the relatively simple randomforest model already overfits the timebased training data.
+
+Another possible representation of android APKs is by the permissions listed in the manifest file.
+This representation too can be used to classify the APK as malicious.
+Table \ref{tab:decisiontreepermissions} shows however that a decisiontree trained on only these features beformes worse than the randomforest on only the three previous features.
+This shows how valuable codebased features are for malware detection.
+
+When combining the permissions, the codeclasses features and the apk size feature,  a decisiontree \ref{tab:decisiontreecombined} outperformes the randomforest that is trained without considering permissions.
+By then also increasing the model complexity through the depth hyperparameter from 15 to 30 the highes nontransformer baseline of this work is achieved \ref{tab:decisiontree30}.
+This Benchmarks shows again how the timebased split leads to worse performance for all three datasets, so that concept drift is apperent and generalizability of the approach is questionable.
+Other than being prone to concept drift, the results show that the performance on Drebin and Transcending is not satisfactionary.
+
+On a general level the very basic models that have been evaluated on the three datasets showed that:
+1. Each dataset exhibits some form of concept drift, shown by decreasing performance when splitting the dataset based on time.
+2. The Dexray dataset has such a big label inbalance on the code-classes features that a simple treestump nearly solves the dataset, this renders the dataset not sufficient for evaluating codebased models.
     
-\begin{table}[b]
+\begin{table}[t]
     \caption{\label{tab:decisiontreepermissions}%
     Decision Tree (max\_depth=15) results by dataset and split. Features include Permissions.}
     \resizebox{\textwidth}{!}{%
@@ -404,13 +430,202 @@ The same model achieves an F1 score of 8\% on Drebin, 48\% on Transcend and 93\%
 \end{table}
     
     
-  
+\newpage  
 
 \subsection{DetectBERT}
 
+\begin{figure*}[b]
+    \centering
+    \begin{minipage}{1.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{3_Methodology/detectbert_schema.png}
+        \captionsetup{width=\textwidth}
+        \caption{\label{fig:detectbert_schema}
+        Overview of the DetectBERT architecture. 
+        The model processes APK files by extracting small class representations using DexBERT, 
+        which generates embeddings for each class. 
+        A CLS token is added to the sequence, 
+        followed by layer normalization and a Nyström attention layer. 
+        Additional layer normalization is applied before feeding the CLS token embedding 
+        into a fully connected layer to generate the final prediction.
+        }
+    \end{minipage}
+\end{figure*}
+
+
+In the previous chapters, various non Transformerbased approaches for 
+static Android malware detection were explored. 
+These methods rely on traditional machine learning techniques and often 
+struggle with capturing the complex relationships within Android application data. 
+In contrast, Transformerbased models have demonstrated SOTA 
+performance in various NLP and code understanding tasks \cite{transformer_sota}. 
+This chapter introduces DetectBERT \cite{detectbert}, the first Transformer-based approach examined 
+in this thesis.
+
+DetectBERT is a static Android malware detection model that leverages Transformer 
+architectures to analyze APK metadata and identify potential threats. 
+It processes Android APK files by extracting smali class representations and 
+transforming them into feature embeddings using DexBERT \cite{dexbert}, which is another 
+Transformer-based model by the same authors. 
+These embeddings are then fed into a Nyström attention-based Transformer model, 
+which refines the feature representations before making a final classification.
+
+Figure \ref{fig:detectbert_schema} illustrates the DetectBERT architecture. 
+The process begins by extracting small class representations from an APK, 
+which are then converted into embeddings. 
+A CLS token is introduced to aggregate global information, 
+and the embeddings pass through layer normalization and a Nyström \cite{nystromformer} attention layer 
+to enhance feature interactions. 
+Finally, a fully connected layer produces a malware prediction.
+
+To evaluate DetectBERT, we benchmarked its performance on two datasets: 
+DexRay and Transcend. 
+Due to computational and time constraints, 
+the full DexRay and Transcend datasets were not used. 
+Instead, subsets of both datasets were generated, each containing 20,000 
+APKs with an even label distribution. 
+Additionally, the smali class distributions were balanced between malware and 
+goodware samples, countering the inherent imbalance of the DexRay dataset. 
+The DexRay dataset is also the dataset that was used for benchmarking the model 
+in its original paper. However, due to the smali class imbalance between labels, 
+the benchmarks presented in the paper were not entirely trustworthy. 
+The results on the balanced subset indicate that the model does not simply rely 
+on the number of smali classes for predictions but, at least to some extent, 
+utilizes other information extracted from the smali class embeddings. 
+However, the results on the subsets are not as good as those provided in the 
+original paper (see Table \ref{tab:detectbert_performance_original}). 
+This performance discrepancy might be attributed 
+to the smaller training dataset size used in our experiments.
+
+The model was tested under two different data-splitting strategies: a random split, 
+which ensures a balanced distribution of samples in training and testing, 
+and a time-based split, which simulates real-world conditions by training on older 
+data and testing on newer samples. 
+Table \ref{tab:detectbert-results} presents the detection performance of DetectBERT across both datasets 
+and splits. The results indicate that DetectBERT is
+achieving high accuracy and F1 scores, particularly on the DexRay dataset. 
+The model demonstrates a slight decline in performance for time-based splits, 
+likely due to evolving malware patterns. 
+Also the performance on the subset of the Transend dataset are not as good as 
+on the DexRay dataset.
+
+The evaluation highlights several key insights about DetectBERT's performance. 
+Transformerbased models effectively capture complex relationships in APK data, 
+surpassing traditional methods for the Transcend dataset (see table \ref{tab:decisiontree30}). 
+The DexRay dataset yields better results compared 
+to Transcend, suggesting dataset-specific challenges. 
+The timebased split introduces a more realistic evaluation setting, 
+exposing the impact of concept drift in malware evolution. Additionally, 
+the Nyström attention mechanism offers a computationally efficient alternative to 
+full self-attention.
+
+Overall, DetectBERT is implemented as a TransMIL model , which is a Transformer-based 
+multiple instance learning (MIL) framework \cite{transmil}. 
+In this approach, the model processes 
+multiple smali class embeddings as instances within an APK and learns to make a 
+classification decision based on the most relevant instances. This allows DetectBERT 
+to focus on the most informative smali class embeddings rather than relying on 
+simple aggregate statistics, improving its ability to detect malware patterns effectively.
+
+\begin{margintable}[-30\baselineskip]
+    \caption{\label{tab:detectbert_performance_original} DetectBERT Performance Results (accuracy, precision, recall, F1 Score) from the original paper \cite{detectbert}}
+    \footnotesize
+    \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}} cccc@{}}
+        \toprule
+        \textbf{Acc.} & \textbf{Prec.} & \textbf{Rec.} & \textbf{F1} \\
+        \midrule
+        97\% & 98\% & 95\% & 97\% \\
+        \bottomrule
+    \end{tabular*}
+\end{margintable}
+
+
+
+
+\begin{table}[]
+    \caption{\label{tab:detectbert-results}%
+        DetectBERT Benchmark Results Across Datasets and Splits.  
+        The results are reported for both random and time-based splits, 
+        highlighting the effectiveness of the model in distinguishing between 
+        goodware and malware. 
+        On the DexRay dataset, DetectBERT consistently achieves higher accuracy, 
+        particularly for goodware classification.}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{@{}llcccc@{}}
+    \toprule
+    \textbf{Dataset} & \textbf{Split} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1} \\ \cmidrule(r){1-2} \cmidrule(lr){3-6}
+    DexRay (Subset)  & Random     & 89.57\% & 89.57\% & 89.57\% & 89.57\% \\
+                     & Time-based & 89.17\% & 90.00\% & 89.17\% & 89.10\% \\ \addlinespace
+    Transcend (Subset) & Random     & 81.77\% & 82.46\% & 81.77\% & 81.77\% \\
+                       & Time-based & 78.67\% & 78.73\% & 78.67\% & 78.68\% \\
+    \bottomrule
+    \end{tabular}%
+    }
+\end{table}
+
+
+
+\newpage
+
+
+
+
+
+
 \section{Experimntal Setup}
 
-\subsection{Android App Representaion}
+\subsection{General BERT based approach}
 
-\subsection{Model Implementation}
+\begin{figure*}[b]
+    \centering
+    \begin{minipage}{1.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{3_Methodology/bertbased_malwaredetection_schema.png}
+        \captionsetup{width=\textwidth}
+        \caption{\label{fig:bertbased_malwaredetection_schema}
+        Generalized BERT-based approach for malware detection. 
+        This figure illustrates a blueprint for utilizing BERT models in APK-based 
+        malware detection. 
+        The process consists of three main stages: 
+        extracting an APK representation [1], 
+        encoding it using a transformer-based model (BERT) [2], 
+        and applying a decision head to generate the final prediction [3]. 
+        The numbered elements indicate open design choices within this blueprint.
+        }
+    \end{minipage}
+\end{figure*}
 
+The experiments conducted in this thesis build upon a generalized paradigm 
+for malware detection, as visualized 
+in Figure \ref{fig:bertbased_malwaredetection_schema}. 
+The core idea is that, in order to classify an APK as malicious or benign, 
+it must first be processed through a structured pipeline.
+
+The first step [1] involves extracting an appropriate representation of the APK. 
+This representation serves as the input for the subsequent stages 
+and can be derived from different static attributes of the APK, 
+ensuring that relevant structural and behavioral information is preserved.
+
+Next, in step [2], this representation undergoes an embedding process. 
+The embedding is designed to transform the extracted representation into 
+a format suitable for processing further while maintaining essential 
+information and reducing dimensionality. 
+The choice of embedding strategy significantly influences the quality 
+of the learned representation and, consequently, the detection performance.
+
+In the final step [3], the embedded representation is passed to a 
+detection head that generates the final classification. 
+The detection head can take various forms, from simple linear classifiers 
+to more complex neural network structures. 
+The effectiveness of the decision head plays a crucial role in 
+ensuring that the model correctly distinguishes between benign 
+and malicious applications.
+
+The objective of this thesis is to analyze the capabilities of 
+this architecture by systematically evaluating each of these three 
+core components. By designing experiments that focus on variations 
+in APK representation, embedding methods, and detection heads, 
+the study aims to provide insights into the strengths and limitations 
+of transformer-based malware detection models. 
+The following chapters will further explore each of these stages in detail, 
+discussing alternative design choices and their impact on detection performance.

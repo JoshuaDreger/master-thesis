@@ -3,12 +3,447 @@
 \label{Evaluation} % For referencing the chapter elsewhere, use \ref{Chapter1}
 
 
-\section{Benchmarking Results}
+\section{The APK Representation}
 
-\section{Experimental Results}
+\begin{marginfigure}[3\baselineskip] % move figure up by 1 line -5\baselineskip
+    \center
+    \includegraphics[width=0.6\marginparwidth]{4_Evaluation/permission_transformer_schema.png}
+    \caption{\label{fig:permission_transformer_schema}
+    Distribution of malware and goodware samples across datasets shown as pie charts.
+    The datasets analyzed are are ordered by size from largest to smallest.
+    The number of APKs contained in the Dataset are shown in brackets}
+\end{marginfigure}
 
-\section{Comparison}
+A key aspect of designing an embedding-based mobile malware detection system is 
+how the APK is represented. Since most embedding models, including all considered BERT models, 
+cannot process APKs as a whole, specific features such as permissions, API calls, 
+or manifest attributes must be selected and represented in a tokenizable format. 
+These features should be structured consistently to ensure comparability across different APKs.
 
-\section{Interpretation}
+To structure these features, concatenating them with designated tokenizer vocabulary entries 
+as separators is beneficial. 
+In this work, a varying number of \# characters were used as separators, 
+with different separators applied to distinguish between various types of separations 
+(e.g., separating feature categories versus separating elements within a feature list).
 
-\section{Implication}
+To show how varying APK representations change the performance of a malware detection 
+architecture, an experiment was done with a relatively simple stack \ref{fig:permission_transformer_schema}. 
+To best see how the representation has an effect, 
+the other two variables of the stack were kept static. 
+For simplicity and efficiency, the selected embedder was modernBERT \cite{modernbert}. 
+Since modernBERT has a context window of up to 8000 tokens, 
+it was possible to process each APK in one iteration, 
+ensuring that the entire representation was captured in a single pass. 
+This approach improves efficiency by reducing computational overhead and helps preserve 
+relationships within the APK's extracted features. 
+The embedding size was set to 768, as recommended by the default modernBERT authors. 
+After applying the Embedding, each input token along a blank CLS token is represented
+by 768 floating points.
+After each APK was embedded, a simple fully connected layer with dropout was 
+trained for 5 epochs on the time-based 
+split subset of the dataset, as described in the previous chapter. 
+To simplify processing, the decision head was not trained on the full 
+embedding but rather only on the CLS token embedding. Each APK was therefore 
+represented by 768 floating-point values, ensuring a compact yet 
+informative representation for classification.
+During training, only the weights of the last fully connected layer were updated, 
+while the weights of the modernBERT embedder were frozen.
+The fully connected layer was chosen for its simplicity and effectiveness in 
+classification tasks, while the dropout mechanism was included to help prevent overfitting 
+and improve generalization. With this stack, 
+multiple different APK representations could be chosen. 
+However, the representation was limited to 8000 tokens so that it could be 
+processed by modernBERT in a single pass. 
+The representations that were chosen were all extracted from the manifest.xml file, 
+as it contains important metadata about an application's permissions, activities, services, 
+and broadcast receivers, which are often indicative of its behavior and potential security risks. 
+The selected ones were the names of the given permissions of the APK, 
+the names of the marked activities, 
+and the names of the marked services and receivers. 
+Permissions indicate what resources an application can access, 
+while activities, services, and receivers help determine its execution behavior. 
+
+\begin{table}[b!]
+    \caption{\label{tab:apk_representation_results}%
+    Performance of different APK representations using frozen modernBERT embeddings. Features are extracted from Android manifest.xml (A=Activities, P=Permissions, R=Receivers, S=Services). Results reported on time-based transcend subset split after five epochs.}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    \textbf{Representation} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1} \\ 
+    \cmidrule(r){1-1} \cmidrule(lr){2-5}
+    A + P + R + S & 74.45\% & 76.30\% & 70.58\% & 73.33\% \\
+    A + P + S      & 74.67\% & 76.39\% & 71.09\% & 73.64\% \\
+    A + P          & 74.47\% & 74.10\% & 74.89\% & 74.49\% \\
+    R + S          & 65.12\% & 74.12\% & 45.97\% & 56.75\% \\
+    A              & 70.64\% & 70.88\% & 69.62\% & 70.24\% \\
+    P              & 66.51\% & 63.48\% & 77.01\% & 69.60\% \\
+    S              & 65.12\% & 69.28\% & 53.77\% & 60.55\% \\
+    R              & 50.23\% & 0.00\%  & 0.00\%  & 0.00\%  \\
+    \bottomrule
+    \end{tabular}%
+    }
+\end{table}
+
+The performance results in Table \ref{tab:apk_representation_results} 
+illustrate how feature selection impacts APK-based malware detection. 
+The combination of activities, permissions, receivers, and services (A + P + R + S) 
+achieved an F1 score of 73.33\%, indicating that a comprehensive manifest representation 
+is beneficial. However, removing receivers (A + P + S) 
+slightly improved performance to 73.64\%, suggesting that including receivers 
+introduces noise that can degrade overall performance.
+
+A subset with only activities and permissions (A + P) produced the highest F1 
+score of 74.49\%, confirming that these two features capture essential malicious behaviors 
+effectively. Permissions alone (P) showed high recall (77.01\%) 
+but not so high precision (63.48\%), 
+reflecting the broad use of permissions in both benign and malicious applications. 
+Activities (A) offered a balanced performance with an F1 score of 70.24\%, 
+indicating  importance in malware detection.
+
+Receivers (R) significantly worsened performance when included, 
+resulting in an F1 score of 0.00\% when used alone, and lowering overall 
+performance when combined with other features. 
+Services (S) also struggled with an F1 score of 60.55\%, 
+indicating that these background components, while relevant, 
+lack strong discriminative power in isolation. 
+Permissions and activities show the most potential as features for static malware detection, 
+with the removal of receivers improving overall system robustness.
+
+Comparing the results of this experiment with just P as Feature representation with 
+the previous results of doing malware detection with a decision tree based on solely 
+the permissions (table: \ref{tab:decisiontreepermissions}) shows how promising this architecture is, 
+as it shows much better results. 
+This might be partly due to the analysis of custom permission naming.
+
+
+\section{The Transformer Encoder}
+
+\begin{table}[b!]
+    \caption{\label{tab:apk_representation_results_unfrozen}%
+    Performance of different APK representations using \emph{unfrozen} modernBERT embeddings. Features are extracted from the Android manifest.xml (A=Activities, P=Permissions, R=Receivers, S=Services). The encoder was also trained through backpropagation in this experiment.}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    \textbf{Representation} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1} \\ 
+    \cmidrule(r){1-1} \cmidrule(lr){2-5}
+    A + P + R + S & 83.95\% & 88.67\% & 77.67\% & 82.81\% \\
+    A + P + S     & 84.32\% & 85.14\% & 82.99\% & 84.05\% \\
+    A + P         & 85.66\% & 87.88\% & 82.58\% & 85.15\% \\
+    R + S         & 71.04\% & 87.89\% & 48.51\% & 62.51\% \\
+    A             & 80.29\% & 90.22\% & 67.75\% & 77.39\% \\
+    P             & 74.97\% & 72.20\% & 80.86\% & 76.28\% \\
+    S             & 72.23\% & 88.46\% & 50.84\% & 64.57\% \\
+    R             & 50.23\% & 0.00\%  & 0.00\%  & 0.00\%  \\
+    \bottomrule
+    \end{tabular}%
+    }
+\end{table}
+
+The second variable of the analyzed Architecture for 
+APK classification is the Transformer Encoder 
+(Figure \ref{fig:bertbased_malwaredetection_schema}).
+Possible Transformer Encoders to use in this approach include: 
+BigBird \cite{bigbird}, Longformer \cite{longformer}, 
+Performer \cite{performer}, Linformer \cite{linformer},
+Reformer \cite{reformer}, FNet \cite{fnet}, 
+Nyströformer \cite{nystromformer} or DexBert \cite{dexbert}.
+Before any of the listed encoders can encode any language based representation
+of the APK, the input first have to be tokenized.
+For the tokenization process a vocabulary is needed that maps different tokens
+to a integer value. The vocabulary is learned during the training of an encoder model 
+and is therefore model specific. It this work it improved the efficiency of 
+the pipelines (e.g. Figure \ref{fig:permission_transformer_schema}) 
+to first tokenize all of the APK representations before encoding them, 
+in order not to create queues of mixed GPU \& CPU usages.
+
+Once tokenized,  general Idea for the Encoder is to reduce the volume of the chosen
+APK Representation to a more managable Level while still maintaining all 
+the relevant information that is needed for a classification.
+Therefore models with a large context window are especially suitable.
+modernBERT \cite{modernbert} with its context window of up to 8000 tokens
+makes it a especially suitable candidate.
+The output of the Encoder is an embedding of the APK representation.
+The volume of the embedding is a hyperparameter of the Encoder.
+For modernBERT the default size of the embedding is 768.
+
+The first experiment of this thesis that focuses on the Encoder with regards
+to overall modell performance bases on the same stack as the previous experiment
+(Figure \ref{fig:permission_transformer_schema}).
+While the setup stayed mostly the same the only change was to unfreeze the 
+encoder models parameters during training. This led to the modernBERT to 
+also improve its embeddings during training. The results of this is shown in 
+table \ref{tab:apk_representation_results_unfrozen}. When comparing these 
+results with the results of the previous experiment where the same modernBERT
+encoder model was frozen \ref{tab:apk_representation_results}, it becomes 
+clear that the performance of the classifiation increases in nearly every insance.
+for the receivers as representation the resulting F1 score stayed 0\% which shows
+that without a proper representation a better encoder outbalance this.
+Other than this instance the performance of the stak increased for all representations
+for up to more than 10\% points of the F1 score, with stronger increases for
+more complex and combined representations. The F1 score of 85.15\% for the 
+activities and representations representation shows how well this very simple
+and also efficient approach works.
+
+\begin{margintable}[-5\baselineskip]
+    \caption{\label{tab:full_transcendence_permissions_a_p} Performance of Activities (A) and Permissions (P) as representations using the full transcending dataset and otherwise the same setup as for table \ref{tab:apk_representation_results_unfrozen}}
+    \footnotesize
+    \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}} cccc@{}}
+        \toprule
+        \textbf{Acc.} & \textbf{Prec.} & \textbf{Rec.} & \textbf{F1} \\
+        \midrule
+        91.36\% & 91.02\% & 91.36\% & 91.17\% \\
+        \bottomrule
+    \end{tabular*}
+\end{margintable}
+
+\begin{margintable}[5\baselineskip]
+    \caption{\label{tab:full_transcendence_permissions_a_p_s} Performance of Activities (A), Permissions (P) and Services (S) as representations using the full transcending dataset and otherwise the same setup as for table \ref{tab:apk_representation_results_unfrozen}}
+    \footnotesize
+    \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}} cccc@{}}
+        \toprule
+        \textbf{Acc.} & \textbf{Prec.} & \textbf{Rec.} & \textbf{F1} \\
+        \midrule
+        91.75\% & 91.53\% & 91.75\% & 91.63\% \\
+        \bottomrule
+    \end{tabular*}
+\end{margintable}
+
+The results demonstrate strong performance across all metrics when using 
+the full dataset. Both A+P and A+P+S representations achieved high accuracy, 
+precision, recall, and F1 scores, with A+P scoring 91.36\% in accuracy and 
+A+P+S slightly outperforming it at 91.75\%. 
+Notably, the performance gap observed in previous experiments between the 
+two representations has narrowed significantly, 
+indicating that additional features (such as Services) 
+can enhance the models capability when trained on larger datasets, 
+contrary to the trend observed with smaller subsets.
+
+When comparing these results with those from Table 
+\ref{tab:apk_representation_results_unfrozen}, 
+it is evident that the full dataset allows for improved overall performance. 
+The A+P representation, which previously outperformed others with an 
+F1 score of 85.15\%, now achieves an even higher F1 score of 91.17\%. 
+Similarly, the A+P+S representation, which scored 84.05\% in the previous 
+experiment, now leads with an F1 score of 91.63\%.
+
+This highlights the significance of dataset size in training 
+transformer based models for Android malware detection. 
+The improved scores suggest that the architecture benefits 
+from a more extensive dataset, enabling it to learn a broader 
+variety of malware and goodware patterns. 
+
+An additional insight from these results is that increasing 
+the volume of APK representation does not inherently degrade 
+performance when the added information is dense and meaningful. 
+The inclusion of Services (S) in the representation contributes 
+positively to the classification task, as demonstrated by the 
+improved metrics in the full dataset experiment.
+
+Another Experiment that was conducted in order to evaluate the 
+Transformer Encoder in the malware detection architecture is to switch
+the basemodel of the encoder.
+For this, APKs were represented by its Permissions and Activities
+and the same transcendence subset was used as in table 
+\ref{tab:apk_representation_results} and \ref{tab:apk_representation_results_unfrozen}.
+In the experiment, the encoder model was trained along the decision head.
+The models that were considered were modernBERT \cite{modernbert}, 
+BigBird \cite{bigbird} and Longformer \cite{longformer}. AS Bigbird and
+Longformer use sparse attention, the CLS token does not nesessarily get 
+contextualized with every input token. The BigBird and also the Longformer model
+the APK was not represented by the embedding of the CLS token but rather by the
+mean of the embedding of all input tokens. With this slightly better results 
+were achieved, wich is shown in table \ref{tab:encoder_model_comparison}.
+The results make modernBERT look superior to the other two models as a 
+Transformer encoder for malware detection. However this might also be due to 
+the fact that the APK Embedding is constructed differently when using the 
+sparse models.
+
+During execution it became obvious that the runtime of BigBird and Longformer were
+around 12x slower than modernBERT wich again make modernBERT look superior.
+However, it is to be found out if the same models are superior for all kinds of
+APK representations. For example DexBERT is trained specifically on Smali code
+and is therefore likely to performe better on this as APK representation.
+
+Also in addition to the effectiveness also the size and applicability of 
+the vocabulary has to be considered. As the vocabulary is the dictonary that
+is used when tokenizezing the input (the APK representation) the vocabulary 
+together with the context window of the model define how much volume the
+input is allowed to have. ModernBERT for example has an context window of
+8192 while having a vocabulary size of 50368, in comparison: BigBird has 
+an context window of 4096 and a vocabulary size of 50358 and Longformer has
+an context window of 4096 and a vocabulary size of 30522. This as well makes 
+modernBERT look superior to the alternative models. It is to be considered through
+how well the vocabulary fits the inut data, as the efficiency is worse for 
+words that have to be broken down into multiple smaler tokens instead of being
+represented by just one.
+
+
+
+
+\begin{table}[t] 
+    \caption{\label{tab:encoder_model_comparison}%
+    Performance comparison of different encoder models for generating embeddings. The APK representation is fixed to Activities (A) and Permissions (P). The encoder was trained through backpropagation in this experiment. The transcenden subset was used as dataset.}    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    \textbf{Model} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1} \\ 
+    \cmidrule(r){1-1} \cmidrule(lr){2-5}
+    modernBERT & 85.66\% & 87.88\% & 82.85\% & 85.15\% \\
+    BigBird    & 62.47\% & 62.50\% & 62.47\% & 62.45\% \\
+    Longformer & 64.36\% & 64.76\% & 64.36\% & 64.09\% \\
+    \bottomrule
+    \end{tabular}%
+    }
+\end{table}
+
+\newpage
+
+
+\section{The Decision Head}
+
+\begin{marginfigure}[3\baselineskip] % move figure up by 1 line -5\baselineskip
+    \center
+    \includegraphics[width=0.6\marginparwidth]{4_Evaluation/java_transformer_schema.png}
+    \caption{\label{fig:java_transformer_schema}
+    Distribution of malware and goodware samples across datasets shown as pie charts.
+    The datasets analyzed are are ordered by size from largest to smallest.
+    The number of APKs contained in the Dataset are shown in brackets}
+\end{marginfigure}
+
+
+The last of the three vairabled of the proposed architecture \ref{fig:bertbased_malwaredetection_schema}
+is the decision head. 
+In the Experiments so far the decision head was a simple fully connected layer,
+that was trained to predict the label from the embedding of the APK representation.
+This has proven to be quite effective, however the applicability of this particular 
+decision head is limited.
+Whenever the tokenized APK representation exceeds the context window of the embedding 
+model, the general architecture becomes more complicated.
+If the Representation cannot be summarized before the embedding, the only solution 
+that still bases on a transformer embedding is to break down the representation into 
+smaller chunks and to embed these chunks iteratively.
+This then leads to one APK not being represented by a single embedding but rather by multiple ones.
+Especially if the number of chunks the representation has to be broken down into, 
+varies inbetween APKs, it can be difficoult to train a common decision head as the 
+input of it is of high and potentially varying size.
+
+This issue can be overcome by pooling the embeddings into a smaler and fixed sized
+state.
+If the representation is of varing size the number of potential pooling mechanisms decreases
+but there are still some possibiities.
+One really simple pooling would be to compute the min, max and/or mean of the embeddings.
+As the embeddings all have the same size, these statistical measures can just be computed
+over each feature of it.
+Another approach would be to select one of the representations by random.
+
+In order to evaluate what kinds of decision heads perform better or worse on 
+the task of embedding classification another experiment was conducted.
+While it still shows the general structure of the proposed architecture 
+\ref{fig:bertbased_malwaredetection_schema}, it differs quite a bit from the 
+previous setup shown in Figure \ref{fig:permission_transformer_schema}.
+Figure \ref{fig:java_transformer_schema} shows how this new experient is set up.
+As the representation of each APK, the Javacode that can be decompiled from the
+classes.dex file is used. This Javacode is then structured by the corresponding
+classes. This representation is quite extensive as it consists of 1866
+classes on average on the full transcending dataset \ref{fig:java_class_boxplots}.
+This brings the base architecture \ref{fig:permission_transformer_schema} to
+the following problem: In most cases the APK representation exceeds the context
+window of the modernBERT model that is used to calculate the embeddings.
+As discussed before, the Representation has therefore to be broken down into chunks.
+For Chunks the java classes were used. While this is an easy way to break down the code,
+even single java classes sometimes exceed the 8000 tokens that defines the 
+modernBERT context window. If this occured during the experiment, the javaclass was
+processed in multiple iterations via an sliding window approach with a stride of 6000.
+Then only for those cases, the average of each cls token that was generated with the
+sliding window was used for the APK representation. 
+Like this one CLS token for each java class was computed.
+
+\begin{margintable}[-5\baselineskip]
+    \caption{\label{tab:matching_java_classes_transcend} Number of total java classes and classes that are mentioned by the manifest.xml file of the Transcending dataset. Also the number of classes that match by the classname is given}
+    \footnotesize
+    \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}} lcr@{}}
+        \toprule
+        \textbf{Feature} & \textbf{Mean} & \textbf{Sum} \\
+        \midrule
+        Java Classes & 1866 & 483102763 \\
+        Manifest Classes & 20 & 5277764 \\
+        Matching Classes & 14 & 3791740 \\
+        \bottomrule
+    \end{tabular*}
+\end{margintable}
+
+
+One approach, that was tried to reduce the amount of Javaclasses that had to be embedded, 
+was to only process those java classes that are either declared as activities, permissions, services or recievers in the
+Manifest.xml file. This approach was not feasable due to some some obfuscation technique that
+changed the naming of the javaclasses in the manifest file. Deeper analysis showed
+that only 72\% \ref{tab:matching_java_classes_transcend} of javaclasses in the transcending dataset have a cosntant naming
+between classes.dex and manifest.xml file. For the Dexray dataset it even were only
+12\% \ref{tab:matching_java_classes_dexray}. So all the java classes of the APK were considered.
+
+\begin{margintable}[-5\baselineskip]
+    \caption{\label{tab:matching_java_classes_dexray} Number of total java classes and classes that are mentioned by the manifest.xml file of the DexRay dataset. Also the number of classes that match by the classname is given}
+    \footnotesize
+    \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}} lcr@{}}
+        \toprule
+        \textbf{Feature} & \textbf{Mean} & \textbf{Sum} \\
+        \midrule
+        Java Classes & 1394 & 220838917 \\
+        Manifest Classes & 58 & 9247905 \\
+        Matching Classes & 7 & 1126716 \\
+        \bottomrule
+    \end{tabular*}
+\end{margintable}
+
+
+As stated before this led to another issue of a variable size embedding that
+has to be classified.
+The experiment that is conducted to evaluate the decision heads is based on 
+the approach of \cite{detectbert}. Therefore the DetectBERT model is used as 
+Decision head as well as three other simple approaches and their performance 
+is compared.
+The other approaches are: Average - here the mean of all the Java Class based
+CLS token embeddings is computed and then processed by a fully connected layer.
+The mean is computed for each of the 768 features the Embedding has, so that the
+resulting mean embedding has 768 features as well;
+Addition - the same as with Average but instead of the mean, the sum is used to
+derive an single embeddig that represents the APK;
+Random - here one Javaclass is selected randomly and its CLS Embedding is used to 
+represent the APK for the classification task.
+
+Table \ref{tab:decision_head_comparison} shows the results of the conducted experiment.
+The Performance is evaluated after training the decision head for 20 epochs on 
+the same transcendence subset that is used in previous experiment. This subset 
+is split into train and test sub-subsets sequentially to account for cocept drift.
+
+The results show how the average aggregation of CLS tokens performes the best when
+using Java code as APK representation and modenBERT as Embedding model.
+It is interesting that even though it is much simpler, it does perform better than
+DetectBERT wich performs slightly worse even though it uses mutliple attention
+layers to aggregate the CLS tokens.
+Another interesting finding is that averaging the embeddings of each Java class 
+outperformes the aggregation approach. 
+Overal the ranking of the four decision heads that are used is the same as the 
+performances on the smali embeddings that were reported by \cite{detectbert} except
+for the performances of DetectbERT and the Average aggregation. 
+In the Experiment that was done on Java classes the performance of the average
+aggregation exceeded the one of DetectBERT, showing once again that simplicity 
+can often lead to better results.
+
+\begin{table}[b] 
+    \caption{\label{tab:decision_head_comparison}%
+    Performance comparison of different decision heads on the Transcend dataset with a time-based split.}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    \textbf{Decision Head} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1} \\ 
+    \cmidrule(r){1-1} \cmidrule(lr){2-5}
+    Average     & 83.80\% & 83.87\% & 83.80\% & 83.79\% \\
+    DetectBERT  & 82.15\% & 82.31\% & 82.15\% & 82.13\% \\
+    Addition    & 80.23\% & 81.57\% & 80.23\% & 80.01\% \\
+    Random      & 66.80\% & 66.81\% & 66.80\% & 66.79\% \\
+    \bottomrule
+    \end{tabular}%
+    }
+\end{table}
+
+

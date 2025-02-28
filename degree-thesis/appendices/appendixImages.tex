@@ -1,6 +1,6 @@
 % Appendix C
  
-\chapter{Additional Plots}
+\chapter{Additional Plots \& Tables}
 \label{appendiximages}
 \label{appendix-more-details-on-template}
 
@@ -54,12 +54,17 @@ This appendix provides additional charts that can be helpfull fore more in depth
     \end{minipage}
 \end{figure*}
 
+\newpage
 
+\section{Baseline Creation}\label{AppendixBaselineCreation}
 
-\begin{table}[]
+\vspace{0em} % Adjust vertical spacing after the section header if needed
+
+\begin{table}[h!]
     \caption{\label{tab:decisiontree}%
     Decision Tree (max\_depth=15) results by dataset and split. Features include Java Classes, Smali Classes, and APK Size.}
-    \resizebox{\textwidth}{!}{%
+    \centering
+    \small % Reduce font size for the table
     \begin{tabular}{@{}llcccc@{}}
     \toprule
     \textbf{Dataset} & \textbf{Split} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1 Score} \\ \cmidrule(r){1-2} \cmidrule(lr){3-6}
@@ -70,14 +75,16 @@ This appendix provides additional charts that can be helpfull fore more in depth
     DexRay         & random     & 96.20\% & 96.56\% & 93.74\% & 95.13\% \\
                    & time based & 92.82\% & 85.35\% & 98.30\% & 91.37\% \\
     \bottomrule
-    \end{tabular}%
-    }
-    \end{table}
-    
-\begin{table}[]
+    \end{tabular}
+\end{table}
+
+\vspace{2em} % Adjust vertical spacing between tables
+
+\begin{table}[h!]
     \caption{\label{tab:decisiontreecombined}%
     Decision Tree (max\_depth=15) results by dataset and split. Features include Java Classes, Smali Classes, APK Size, and Permissions.}
-    \resizebox{\textwidth}{!}{%
+    \centering
+    \small % Reduce font size for the table
     \begin{tabular}{@{}llcccc@{}}
     \toprule
     \textbf{Dataset} & \textbf{Split} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1 Score} \\ \cmidrule(r){1-2} \cmidrule(lr){3-6}
@@ -88,9 +95,9 @@ This appendix provides additional charts that can be helpfull fore more in depth
     DexRay         & random     & 96.87\% & 96.82\% & 95.21\% & 96.01\% \\
                     & time based & 96.10\% & 91.74\% & 98.82\% & 95.15\% \\
     \bottomrule
-    \end{tabular}%
-    }
+    \end{tabular}
 \end{table}
+
 
 \chapter{Archive}
 
