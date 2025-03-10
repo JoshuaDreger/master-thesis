@@ -1,8 +1,7 @@
 % Appendix C
  
 \chapter{Additional Plots \& Tables}
-\label{appendiximages}
-\label{appendix-more-details-on-template}
+\label{sec:appendiximages}
 
 This appendix provides additional charts that can be helpfull fore more in depth understanding
 
@@ -98,12 +97,36 @@ This appendix provides additional charts that can be helpfull fore more in depth
     \end{tabular}
 \end{table}
 
+\newpage
+
+\section{Evalutaion}\label{AppendixEvalutaion}
+
+\vspace{0em} % Adjust vertical spacing after the section header if needed
+
+
+\begin{table}[h] 
+    \caption{\label{tab:encoder_model_comparison_average}%
+    Performance comparison of different encoder models for generating embeddings. The APK representation is fixed to Activities (A) and Permissions (P). The encoder was trained through backpropagation in this experiment. The transcenden subset was used as dataset. The average of all tokens was used to calculate a single embedding as APK representation}    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    \textbf{Model} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1} \\ 
+    \cmidrule(r){1-1} \cmidrule(lr){2-5}
+    modernBERT & 81.50\% & 81.80\% & 81.50\% & 81.45\% \\
+    BigBird    & 62.47\% & 62.50\% & 62.47\% & 62.45\% \\
+    Longformer & 64.36\% & 64.76\% & 64.36\% & 64.09\% \\
+    \bottomrule
+    \end{tabular}%
+    }
+\end{table}
+
+
+
 
 \chapter{Archive}
 
 \begin{table}
     \caption{Java Statistics Summary for DexRay, Transcend, and Drebin}
-    \label{tab:statistics}
+    \label{tab:statistics1}
     \centering
     \footnotesize
     \begin{tabular}{l c c c c c}
@@ -127,7 +150,7 @@ This appendix provides additional charts that can be helpfull fore more in depth
 
 \begin{table}
     \caption{Smali Statistics Summary for DexRay, Transcend, and Drebin}
-    \label{tab:statistics}
+    \label{tab:statistics2}
     \centering
     \footnotesize
     \begin{tabular}{l c c c c c}
