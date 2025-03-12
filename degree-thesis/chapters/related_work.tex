@@ -158,84 +158,134 @@ with only ~2 GB of GPU memory, achieving inference times on the order of 5 milli
 Researchers have also revisited the classic BERT model to incorporate recent advancements, 
 leading to the development of ModernBERT.
 ModernBERT extends the native input length to 8000 tokens, overcoming BERTs original 512-token limit. 
-It also incorporates optimization techniques from the Transformer research of the past few years 
+It also includes optimization techniques from the Transformer research of the past few years 
 (such as improved training regimes, more efficient attention implementations, 
 and better normalization methods). 
-Trained on an 2 trillion token corpus, ModernBERT achieves SOTA results across a wide array of 
+Trained on 2 trillion tokens, ModernBERT achieves SOTA results across a wide array of 
 classification and retrieval tasks (including domains like long text and code). 
 Impressively, these gains seem come without tradeoffs in practicality.
 ModernBERT is faster and more memory-efficient than older encoders and is still 
-running inference on common GPUs.
+running inference on common GPUs \cite{modernbert}.
 
 \section{Malware Detection}
 
-Malware detection approaches include static, dynamic, and network-based methods \cite{vorlesung}.
-While this thesis focuses on static analysis, it is worth briefly noting the other approaches for context.
+Malware detection approaches are commonly categorized into static, dynamic, and hybrid analysis methods \cite{vorlesung}.
+Each approach inspects malware from a different angle, 
+offering unique advantages and tradeoffs in terms of accuracy, and efficiency.
+While this thesis focuses on static analysis, it is worth noting the other approaches for context.
 Static analysis examines APK features such as source code and binaries without executing the app.
-This makes it highly scalable and suitable for large-scale evaluations.
+The key advantage of static analysis is efficiency and scalability, 
+since no runtime environment is needed, large volumes of files can be scanned quickly.
 Prior research like \cite{drebin} and \cite{detectbert} demonstrate the effectiveness and efficiency of static approaches.
-However, static analysis does face challenges, including evasion techniques like code obfuscation and polymorphism.
-Dynamic analysis, in contrast, observes malware behavior at runtime.
-Although it provides richer contextual insights, it requires significant resources and infrastructure and is vulnerable to other evasive strategies, such as sandbox detection.
-Similarly, network analysis examines communication patterns and data flows to identify malicious activity.
-Hybrid techniques that integrate these methods aim to combine their strengths while mitigating individual limitations.
-These, too, face challenges such as computational complexity and integration difficulties.
-This thesis, therefore, focuses solely on static analysis as a scalable and efficient approach for malware detection.
+However, static analysis does face challenges, including evasion techniques.
+Obfuscation and encryption can hide malicious code from static detectors.
+
+Dynamic analysis, in contrast, executes the program in a controlled environment 
+such as a sandbox\cite{sandbox}, to observe its behavior at runtime \cite{vorlesung}.
+During execution, the analysis may monitor network traffic, file modifications, memory usage, 
+and other behavior that may reveal malicious actions \cite{stateoftheartaibasedmalwaredetection}. 
+A big advantage of dynamic analysis is that it can detect malicious behavior even if the code is obfuscated. 
+This makes dynamic analysis more robust than static approaches.
+Several research systems like TaintDroid \cite{taintdroid} or DroidScope \cite{droidscope} 
+use this approach
+However, dynamic analysis is computationally intensive and slower.
+Running each APK in a virtual machine or virtual environment leads to a lot of computation, 
+scaling this to thousands of files is very challenging.
+Additionally, it is vulnerable to other evasive strategies, such as sandbox detection \cite{sandbox_detection}.
+
+Hybrid techniques that integrate these methods aim to combine their strengths while weakening individual limitations.
+Here both a parallel and integrated approach are possible.
+In a parallel approach the malware set might first be clustered statically where the expensive dynamic approach then is only
+applied to high risk malware. 
+Alternatively also both static and dynamic features might be evaluated by the same model.
+Hybrid analysis too, faces challenges such as computational and theoretical complexity.
+This thesis, focuses on static analysis as a scalable and efficient approach for malware detection.
 
 Malware authors often employ evasion techniques to bypass detection mechanisms \cite{vorlesung}.
-In static analysis, common strategies include manipulating code structures through obfuscation \cite{obfuscation} and polymorphism \cite{polymorhism}.
-Obfuscation involves transforming code into a more complex or less readable form to conceal its true purpose, whereas polymorphism allows malware to dynamically change its appearance while maintaining its core functionality.
+In static analysis, common strategies include manipulating code structures through 
+obfuscation \cite{obfuscation} and polymorphism \cite{polymorhism}.
+Obfuscation involves transforming code into a more complex or less readable form to conceal its true purpose, 
+whereas polymorphism allows malware to dynamically change its appearance while maintaining its core functionality.
 These approaches exploit the limitations of analyzing code without running it.
-While dynamic and network based methods address some of these weaknesses, they introduce their own vulnerabilities, such as susceptibility to sandbox detection and reliance on communication pattern anomalies.
-Transformers ability to handle obfuscation and learn robust representations of static code helps mitigate some of these challenges \cite{deobfuscation}.
+While dynamic and hybrid methods address some of these weaknesses, 
+they introduce their own vulnerabilities, such as susceptibility to sandbox detection and reliance on communication pattern anomalies.
+Transformers ability to handle obfuscation and learn robust representations 
+of static code helps mitigate some of these challenges \cite{deobfuscation}.
+In addition to Transformers having the potential to be robust to obfuscation, they also show capabilities of deobfuscating code through 
+encoder decoder systems as discussed in chapter \ref{sec:rel_transformer}.
 
-Concept drift refers to the gradual evolution of malware patterns, which often leads to a decline in the performance of detection models over time.
-Models like Transcend \cite{transcend} have tackled this issue by introducing mechanisms to detect and adapt to concept drift during deployment.
-However, these methods are resource-intensive and may struggle to generalize across diverse datasets.
+Another challenge in the realm of malware detection is concept drift due to malware authors continuously evolving their techniques.
+Concept drift refers to the evolution of malware patterns, which often leads to a decline in the performance of detection models over time.
+Work like Transcend \cite{transcend} have tackled this issue by introducing mechanisms to detect and adapt to concept drift during deployment.
+However, these methods are resource intensive and may struggle to generalize across diverse datasets.
+Based on the Transcend approach the same research group published work on "Transcending Transcend" \cite{transcending}, where they used their 
+mechanism to construct a dataset.
 Addressing concept drift remains a critical challenge for static Android malware detection and is one criteria used in this thesis.
 Some works have proposed automated drift detectors that trigger model updates when the 
-input data distribution shifts
-\cite{morph}
+input data distribution shifts \cite{morph}.
+
+Somewhat similar to the challenge of concept drift is the challenge of biased datasets.
+Tesseract \cite{tesseract} shows, how datasets are always biased and never represent the true distribution of software.
+The authors differentiated bias in spatial and temporal bias.
+The spatial bias stems from unrealistic class distributions,
+such as an artificially high proportion of malware, which do not match real world conditions.
+Temporal bias bases on concept drift and 
+occurs when the data is trained and evaluated on the same timespan.
+In real world scenarios malware detectors will always be trained until a certain point in time and will then be used to 
+process new software. This means that a model has to be somewhat robust to concept drift. 
+To account for temporal bias the authors propose to split the dataset that is used in a temporal manner, 
+where the training data is comes before the evaluation data.
+While still being biased, this time based split makes the evaluation of models more realistic.
+
 
 \subsection{Android Malware Detection}
 \label{sec:amd}
-Detecting malware on the Android platform presents unique challenges and opportunities due to its open ecosystem and the high volume of apps and malware samples. The availability of many labeled datasets such as Androzoo, Drebin, Transcend, and DexRay has driven research in this domain.
 
-Drebin \cite{drebin} represents a leap in Android malware detection, being both a dataset and an approach. 
-As an SVM-based method, Drebin achieves remarkable results, significantly outperforming other 
-approaches by detecting 94\% of malware samples at a false-positive rate of just 1\%. 
-This demonstrated the high effectiveness of machine learning-based static Android malware detection, 
-striking a balance between accuracy and efficiency. 
-The Drebin dataset itself provides labeled malware samples with rich the APK files of each Android 
-application being provided, making it a foundational resource in the field.
+Detecting malware on the Android platform presents unique challenges and opportunities due to its open ecosystem 
+and the high volume of apps and malware samples. 
+The availability of many labeled datasets such as Androzoo, Drebin, Transcend, and DexRay has driven research in this domain.
 
-Transcend \cite{transcend}, on the other hand, introduced the critical concept of drift into 
-Android malware detection.
-It highlights how models trained on older datasets like Drebin experience performance decay when 
-applied to newer, evolving datasets.
-This evolution in malware characteristics, known as concept drift, underscores the need 
-for adaptive retraining mechanisms.
-Transcend serves as a benchmark for evaluating the robustness of detection models over time 
-and emphasizes the importance of building systems that can sustain detection accuracy in the 
-face of changing malware landscapes.
+Drebin \cite{drebin} is a static analysis method for detecting Android malware using machine learning. 
+It extracts features from an apps manifest and code to build a set of descriptive strings. 
+These features are encoded in a high dimensional vector space, where each APK is represented by a sparse binary vector. 
+Drebin uses a linear Support Vector Machine (SVM) to learn a decision boundary that separates benign apps from malware. 
+The method detects about 94\% of malware samples while keeping the false positive rate around 1\%. 
+It is designed to be lightweight and can run directly on smartphones, typically taking about 10 seconds per application. 
+The approach also provides explanations by showing the most important features that led to the detection. 
+This helps users understand why an app is flagged as malicious. 
+In addition, the Drebin dataset, which includes labeled malware samples and complete APK files, is a foundational 
+resource for further research. 
 
-DexRay \cite{dexray} is as well a model and a dataset comprising 158,803 Android applications, 
-including both benign and malicious samples, curated from AndroZoo. 
-The dataset spans applications from 2019 to 2020, with benign apps defined as those not flagged 
-by any antivirus on VirusTotal and malware apps identified by at least two antivirus engines. 
-A distinguishing feature of the DexRay dataset is its explicit inclusion of both non-obfuscated 
-and obfuscated applications, allowing researchers to assess the impact of code obfuscation on 
-malware detection models. Given its large-scale and diverse composition, 
-DexRay provides a valuable benchmark for evaluating detection techniques and analyzing how 
-Android malware evolves over time.
+Transcending \cite{transcending} introduces a dataset that spans five years of real-world Android applications. 
+The dataset includes thousands of malware samples collected from sources like AndroZoo. 
+It is split into training and testing sets that represent different time periods based on the work of Tesseract \cite{tesseract}.
+The study showed that static detection models like Drebin trained on older data lose accuracy as new malware emerges. 
+Based on the work of Transcend \cite{transcend} it introduces a rejection mechanism to identify samples that do not match the training distribution. 
+This approach helps prevent misclassification by flagging drifting samples. 
+By using this comprehensive dataset, the work highlights the impact of concept drift on static malware detection. 
+It has set a new benchmark for evaluating the robustness of detection models over extended periods.
+In this thesis we will call the dataset that was used in the Transcending paper Transcend.
 
-Androzoo \cite{androzoo} is a comprehensive repository containing millions of APKs sourced 
-from various app stores and spanning over a decade of Android app development.
-The dataset provides significant scale and diversity, enabling researchers to analyze trends 
-in malware evolution and assess the effectiveness of detection methods over time.
-In addition to the APKs there was work done on mining metadata for the APKs, enabling further 
-research on the landscape of Android Apps.
+DexRay \cite{dexray} is a deep learning approach that detects Android malware by converting app bytecode into a grey-scale vector image. 
+It first extracts the raw DEX bytecode from an APK file and then transforms the bytes into a one dimensional image. 
+This image is resized to a fixed size and fed into a simple one dimensional convolutional neural network for classification. 
+The model is evaluated on a dataset of 158,803 Android applications collected from AndroZoo. 
+The dataset spans apps from 2019 to 2020 and includes both benign and malicious samples. 
+Benign apps are defined as those not flagged by any antivirus on VirusTotal \footnote{https://www.virustotal.com/gui/home/upload}, 
+while malware apps are identified if at least two antivirus engines detect them. 
+A key feature of the DexRay dataset is, that it includes both non obfuscated and obfuscated APKs. 
+This design is supposed to allow researchers to study the impact of code obfuscation on detection performance. 
+DexRay achieves an impressive F1-score of 96\%, demonstrating its effectiveness in malware detection. 
+Its simple yet effective approach makes it a solid baseline for malware detection.
 
+Androzoo \cite{androzoo} is a large repository that contains millions of Android apps collected from various app stores. 
+It spans more than a decade of Android development, which makes it a valuable resource for studying long term trends. 
+It includes both benign and malicious APKs, in addition to metadata for each app, such as compilation dates, sizes, antivirus reports and more. 
+This extra information enables further analysis of the Android app landscape.
+The scale and diversity of Androzoo have helped improve the reproducibility of research studies. 
+Researchers can use Androzoo to track how malware evolves over time and to test the effectiveness of detection methods.
+Androzoo enabled the research of this thesis by providing an API key to download APKs from its repository.
+This key was then used to download the DexRay dataset to analyze it together with the previously mentioned ones in chapter \ref{sec:datasets}.
 
 \section{Transformer based malware detection}
 

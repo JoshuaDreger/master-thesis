@@ -142,6 +142,16 @@ publisher = {USENIX Association},
 month = aug
 }
 
+@misc{transcending,
+      title={Transcending Transcend: Revisiting Malware Classification in the Presence of Concept Drift}, 
+      author={Federico Barbero and Feargus Pendlebury and Fabio Pierazzi and Lorenzo Cavallaro},
+      year={2024},
+      eprint={2010.03856},
+      archivePrefix={arXiv},
+      primaryClass={cs.CR},
+      url={https://arxiv.org/abs/2010.03856}, 
+}
+
 @inproceedings{androzoo,
     author = {Allix, Kevin and Bissyand{\'e}, Tegawend{\'e} F. and Klein, Jacques and Le Traon, Yves},
     title = {AndroZoo: Collecting Millions of Android Apps for the Research Community},
@@ -1337,4 +1347,87 @@ abstract = {The exponential proliferation of malware requires...}
       archivePrefix={arXiv},
       primaryClass={cs.LG},
       url={https://arxiv.org/abs/2402.01359}, 
+}
+
+@misc{stateoftheartaibasedmalwaredetection,
+      title={The State-of-the-Art in AI-Based Malware Detection Techniques: A Review}, 
+      author={Adam Wolsey},
+      year={2022},
+      eprint={2210.11239},
+      archivePrefix={arXiv},
+      primaryClass={cs.CR},
+      url={https://arxiv.org/abs/2210.11239}, 
+}
+
+@article{taintdroid,
+author = {Enck, William and Gilbert, Peter and Han, Seungyeop and Tendulkar, Vasant and Chun, Byung-Gon and Cox, Landon P. and Jung, Jaeyeon and McDaniel, Patrick and Sheth, Anmol N.},
+title = {TaintDroid: An Information-Flow Tracking System for Realtime Privacy Monitoring on Smartphones},
+year = {2014},
+issue_date = {June 2014},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {32},
+number = {2},
+issn = {0734-2071},
+url = {https://doi.org/10.1145/2619091},
+doi = {10.1145/2619091},
+abstract = {Today’s smartphone operating systems frequently fail to provide users with visibility into how third-party applications collect and share their private data. We address these shortcomings with TaintDroid, an efficient, system-wide dynamic taint tracking and analysis system capable of simultaneously tracking multiple sources of sensitive data. TaintDroid enables realtime analysis by leveraging Android’s virtualized execution environment. TaintDroid incurs only 32\% performance overhead on a CPU-bound microbenchmark and imposes negligible overhead on interactive third-party applications. Using TaintDroid to monitor the behavior of 30 popular third-party Android applications, in our 2010 study we found 20 applications potentially misused users’ private information; so did a similar fraction of the tested applications in our 2012 study. Monitoring the flow of privacy-sensitive data with TaintDroid provides valuable input for smartphone users and security service firms seeking to identify misbehaving applications.},
+journal = {ACM Trans. Comput. Syst.},
+month = jun,
+articleno = {5},
+numpages = {29},
+keywords = {Information-flow tracking, mobile apps, privacy monitoring, smartphones}
+}
+
+@inproceedings {droidscope,
+author = {Lok Kwong Yan and Heng Yin},
+title = {{DroidScope}: Seamlessly Reconstructing the {OS} and Dalvik Semantic Views for Dynamic Android Malware Analysis},
+booktitle = {21st USENIX Security Symposium (USENIX Security 12)},
+year = {2012},
+isbn = {978-931971-95-9},
+address = {Bellevue, WA},
+pages = {569--584},
+url = {https://www.usenix.org/conference/usenixsecurity12/technical-sessions/presentation/yan},
+publisher = {USENIX Association},
+month = aug
+}
+
+@INPROCEEDINGS{5665792,
+  author={Bläsing, Thomas and Batyuk, Leonid and Schmidt, Aubrey-Derrick and Camtepe, Seyit Ahmet and Albayrak, Sahin},
+  booktitle={2010 5th International Conference on Malicious and Unwanted Software}, 
+  title={An Android Application Sandbox system for suspicious software detection}, 
+  year={2010},
+  volume={},
+  number={},
+  pages={55-62},
+  keywords={Malware;Smart phones;Kernel;Mobile communication},
+  doi={10.1109/MALWARE.2010.5665792}}
+
+@INPROCEEDINGS{sandbox,
+  author={Bläsing, Thomas and Batyuk, Leonid and Schmidt, Aubrey-Derrick and Camtepe, Seyit Ahmet and Albayrak, Sahin},
+  booktitle={2010 5th International Conference on Malicious and Unwanted Software}, 
+  title={An Android Application Sandbox system for suspicious software detection}, 
+  year={2010},
+  volume={},
+  number={},
+  pages={55-62},
+  keywords={Malware;Smart phones;Kernel;Mobile communication},
+  doi={10.1109/MALWARE.2010.5665792}}
+
+@inproceedings{sandbox_detection,
+author = {Vidas, Timothy and Christin, Nicolas},
+title = {Evading android runtime analysis via sandbox detection},
+year = {2014},
+isbn = {9781450328005},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/2590296.2590325},
+doi = {10.1145/2590296.2590325},
+abstract = {The large amounts of malware, and its diversity, have made it necessary for the security community to use automated dynamic analysis systems. These systems often rely on virtualization or emulation, and have recently started to be available to process mobile malware. Conversely, malware authors seek to detect such systems and evade analysis. In this paper, we present techniques for detecting Android runtime analysis systems. Our techniques are classified into four broad classes showing the ability to detect systems based on differences in behavior, performance, hardware and software components, and those resulting from analysis system design choices. We also evaluate our techniques against current publicly accessible systems, all of which are easily identified and can therefore be hindered by a motivated adversary. Our results show some fundamental limitations in the viability of dynamic mobile malware analysis platforms purely based on virtualization.},
+booktitle = {Proceedings of the 9th ACM Symposium on Information, Computer and Communications Security},
+pages = {447–458},
+numpages = {12},
+keywords = {android, evasion, malware, sandbox},
+location = {Kyoto, Japan},
+series = {ASIA CCS '14}
 }
