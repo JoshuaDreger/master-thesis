@@ -513,11 +513,14 @@ Its processing schema is visualized in figure \ref{fig:detectbert_schema}.
 Specifically, DetectBERT processes the classes.dex file contained within Android APKs by extracting Smali class representations. 
 These representations are subsequently transformed into compact feature embeddings using DexBERT \cite{dexbert}, 
 a specialized Transformer model developed by the same authors for this task.
-These embeddings serve as inputs to the DetectBERT component, a Transformer architecture that employs Nyström based attention \cite{nystromformer} 
+These embeddings serve as inputs to the DetectBERT component, 
+a Transformer architecture that employs Nyström based attention \cite{nystromformer} 
 to effectively manage computational complexity while capturing long-range dependencies. 
-The embeddings, together with a special CLS token, designed to aggregate global context, are refined through successive layer normalization and Nyström attention layers. 
+The embeddings, together with a special CLS token, designed to aggregate global context, 
+are refined through successive layer normalization and Nyström attention layers. 
 This processing aims for, global feature representation encapsulated in the embedding of the CLS token.
-Finally, DetectBERT uses a fully connected  layer to process the Embedded CLS token into a  malware prediction, indicating whether the APK is malicious or benign.
+Finally, DetectBERT uses a fully connected  layer to process the Embedded CLS token into a  malware prediction, 
+indicating whether the APK is malicious or benign.
 
 To evaluate DetectBERT, we benchmarked its performance on the DexRay ad Transcend datasets. 
 Due to computational and time constraints, the full DexRay and Transcend datasets were not used. 
@@ -578,26 +581,25 @@ simple aggregate statistics, improving its ability to detect malware patterns ef
 
 
 
-\begin{table}[]
-    \caption{\label{tab:detectbert-results}%
-        DetectBERT Benchmark Results Across Datasets and Splits.  
-        The results are reported for both random and time-based splits, 
-        highlighting the effectiveness of the model in distinguishing between 
-        goodware and malware. 
-        On the DexRay dataset, DetectBERT consistently achieves higher accuracy, 
-        particularly for goodware classification.}
+\begin{table}[t]
+    \centering
+    \caption{\label{tab:detectbert-results}
+        DetetBERT Results Across Datasets and Splits. 
+        Results show accuracy, precision, recall, and F1 scores 
+        for both random and time based splits.}
     \resizebox{\textwidth}{!}{%
     \begin{tabular}{@{}llcccc@{}}
     \toprule
     \textbf{Dataset} & \textbf{Split} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1} \\ \cmidrule(r){1-2} \cmidrule(lr){3-6}
-    DexRay (Subset)  & Random     & 89.57\% & 89.57\% & 89.57\% & 89.57\% \\
-                     & Time-based & 89.17\% & 90.00\% & 89.17\% & 89.10\% \\ \addlinespace
-    Transcend (Subset) & Random     & 81.77\% & 82.46\% & 81.77\% & 81.77\% \\
-                       & Time-based & 78.67\% & 78.73\% & 78.67\% & 78.68\% \\
+    DexRay (Subset)     & Random     & 89.14\% & 88.81\% & 89.56\% & 89.19\% \\
+                        & Time-based & 88.94\% & 95.79\% & 81.45\% & 88.04\% \\ \addlinespace
+    Transcend (Subset)  & Random     & 82.91\% & 87.45\% & 76.86\% & 81.81\% \\
+                        & Time-based & 80.13\% & 80.91\% & 78.88\% & 79.88\% \\
     \bottomrule
     \end{tabular}%
     }
 \end{table}
+
 
 \newpage
 

@@ -8,11 +8,13 @@
 Transformer models have revolutionized how sequential data is processed in deep learning. 
 Introduced by Vaswani et al. (2017) in the foundational paper “Attention Is All You Need” 
 \cite{attention}
-, the Transformer architecture relies entirely on attention mechanisms instead of recurrence or convolution.
-This design enables parallel processing of sequence elements and captures long range dependencies 
-more effectively than previous recurrent neuronal network (RNN)-based approaches. 
+, the Transformer architecture relies entirely on attention mechanisms.
+This was a paradigm shift from the previously prominent Recurrent Neuronal Network (RNN) \cite{rnn} 
+or Convolutional Neuronal Network (CNN) \cite{cnn} approaches.
+Transformer enables parallel processing of sequence elements and captures long range dependencies 
+more effectively than RNN based approaches. 
 At its core, a Transformer uses a mechanism called self-attention to weigh the importance of different 
-tokens (elements) in a sequence relative to one another, 
+tokens in a sequence relative to one another, 
 allowing the model to focus on relevant context regardless of its positional distance. 
 This ability to draw global dependencies between input and output makes Transformers powerful 
 for tasks like machine translation, where the entire input sequence informs each output element. 
@@ -23,18 +25,21 @@ for tasks like machine translation, where the entire input sequence informs each
     Taken From \cite{attention}}
 \end{marginfigure}
 
+%Self-Attention
 In a self-attention layer, the model computes attention scores between every pair of tokens in a sequence. 
-Each token is first converted into an embedding vector, by looking up the token in the embedding matrix
-with the dimensionality (vocabulary size, hidden size). 
-The embedding vector has a length of "hidden size".
-From each embedding vector then a Query, Key, and Value vector is derived via multiplication with learned 
-projection matrices.
-Next attention scores are obtained by comparing Queries against Keys via a dot product. 
+Each token is first converted into an embedding vector, by looking up the token in the embedding matrix.
+This embedding matrix has a row for each possible token in the vocabulary of the model.
+Each row is the according embedding vector that represents this token. 
+The embedding vector has a length of the "hidden size" hyperparameter of the model.
+From each embedding vector then a Query (Q), Key (K), and Value (V) vector is derived.
+This is done by multiplication of the embedding vector with
+model specific learned projection matrices (One matrix for each Q, K \& V).
+Next attention scores are obtained by multiplying Q and K vectors via a dot product. 
 These scores determine how much attention one token should pay to another when constructing 
 its next representation. 
-After a softmax normalization layer, each token Value vector aggregates information from all 
-other tokens Value vectors, weighted by these attention scores.
-Finally, this weighted sum of Value vectors produces a new contextualized embedding for that token, 
+After a softmax normalization layer, each token V vector aggregates information from all 
+other tokens V vectors, weighted by these attention scores.
+Finally, this weighted sum of V vectors produces a new contextualized embedding vector for that token, 
 capturing relationships between words dynamically.
 Transformers employ multi-head attention, meaning this process is replicated in parallel multiple times 
 (with different learned projection matrices). 
@@ -43,15 +48,16 @@ capturing different kinds of relationships in the sequence.
 The outputs of multiple heads are then combined, 
 enabling richer representations than a single attention operation. 
 Because the Transformer has no recurrent notion of sequence order, 
-it adds positional encodings to token embeddings to inject information about each tokens position 
+it adds positional encodings to token embeddings to include information about each tokens position 
 in the sequence.
 
+%Encoder-Decoder
 The original Transformer architecture is an encoder-decoder model, 
 consisting of a stack of encoder layers and a stack of decoder layers
-\cite{attention}
-. Each encoder layer has two main sublayers: 
+\cite{attention}. 
+Each encoder layer has two main sublayers: 
 a multi-head self-attention sublayer that allows each input token to attend to others, 
-and a feed-forward network sublayer that further transforms each tokens representation 
+and a feed-forward network sublayer that further transforms each tokens embedding vector 
 (each sub-layer is wrapped with residual connections and layer normalization for stability). 
 Stacking multiple such layers produces an encoder that maps an input sequence into a sequence of 
 high level feature vectors.
@@ -78,26 +84,17 @@ the decoder generates an output sentence using that context \cite{deep_translate
 
 While the original Transformer uses both an encoder and a decoder, 
 many modern applications use only one of the two stacks, depending on the task. 
-An encoder only Transformer (just the stack of self-attention and feed-forward layers) 
-is well suited for producing a fixed length embedding of an input e.g. for classifying it. 
-Bidirectional Encoder Representations from Transformers (BERT) \cite{bert} is a popular example: 
-it directly outputs contextualized embeddings from the top encoder layer to be used for prediction tasks. 
-In contrast, decoder only Transformers (also called "autoregressive Transformers") 
-use just the decoder mechanism to generate sequences. 
-These models, exemplified by the GPT series \cite{gpt1, gpt2, gpt3, gpt4}, 
-model probability distributions over sequences by predicting each next token given the previous ones. 
-In essence, encoder only Transformers encode a full sequence to an embedding 
-(useful for understanding or classification), 
-whereas decoder only Transformers decode/generate a sequence one token at a time 
-(useful for language modeling). 
-Both styles share the same self-attention building blocks, 
-with differences mainly in whether they process an input sequence as a whole (encoders) 
-or produce an output sequentially (decoders). 
 
-One of the biggest breakthroughs following the original Transformer \cite{attention} 
-was the introduction of BERT by Devlin et al. in late 2018 \cite{bert}. 
-BERT uses the Transformer encoder only architecture to learn deep Bidirectional Encoder from Transformer 
-of language.
+%Encoder
+Encoder only Transformer architectures
+are designed exclusively with encoder components, 
+leaving out the decoder segments present in encoder-decoder models. 
+This design choice makes them particularly effective for tasks that require understanding and representation of input data 
+without the necessity for sequence generation.
+"Bidirectional Encoder Representations from Transformers" (BERT) \cite{bert} 
+is a popular example
+BERT is an encoder-only Transformer architecture that converts input text into a sequence of vectors representing the input text. 
+It consists of multiple layers of encoders, each containing a self-attention mechanism and a feed-forward neural network. 
 In BERTs pretraining, some tokens in the input are masked at random and the model must predict 
 these missing tokens (Masked Language Modeling), 
 and it also learns to predict if one sentence naturally follows another (Next Sentence Prediction). 
@@ -105,9 +102,36 @@ Through this process, BERT learns contextual embeddings that capture subtle rela
 as each tokens representation is influenced by the tokens on both its left and right. 
 This bidirectional conditioning (as opposed to the one directional nature of a decoder) 
 enabled BERT to achieve better performances on a wide range of NLP tasks once finetuned \cite{scoreBERT}.
+In BERT's architecture, there is a special [CLS] token inserted at the beginning of each input sequence, 
+serving as an empty sheet to be contextualized by the entire sequence for classification tasks. 
+During training, the final hidden state corresponding to the [CLS] token is utilized to capture the overall meaning of the input.
+The absence of a decoder in encoder only models means they are not typically used for generating new sequences from input data. 
+Instead, they are used in scenarios where the goal is to derive meaningful representations or classifications from the input data.
+
+%Decoder
+Decoder-only Transformer architectures are built exclusively using decoder layers, 
+leaving out encoder layers entirely. 
+Such models are primarily designed for tasks that involve generating sequences, 
+such as predicting text or continuing a given sequence. 
+A prominent example is "Generative Pretrained Transformer" (GPT) \cite{gpt1, gpt2, gpt3, gpt4}, 
+which is commonly used for text generation, summarization, and other creative writing tasks.
+Each decoder layer includes two key parts: 
+a self-attention mechanism and a feed-forward neural network. 
+The self-attention allows the model to consider previously generated tokens when predicting the next one, 
+helping it maintain context and coherence across a sequence. 
+However, unlike encoder models, decoder-only models use a form of attention called "masked attention". 
+This means each token can only pay attention to tokens that came before it, 
+preventing the model from "seeing" future tokens during training or generation.
+Decoder-only models like GPT learn by predicting the next token in a sequence, 
+effectively teaching the model patterns in language and context over large datasets. 
+Once trained, these models can generate coherent and contextually relevant sequences of text, 
+making them powerful tools for tasks such as storytelling, dialogue systems, or code generation. 
+Although decoder-only models excel at generating new text, 
+they are usually less effective for tasks that require deep understanding or classification of input 
+data compared to encoder or encoder-decoder models \cite{encoder_vs_decoder}.
 
 Since "Attention Is All You Need", Transformer architectures have undergone numerous enhancements 
-and spawned many variants. 
+and there are a lot of different variants. 
 Early on, researchers scaled Transformers to larger sizes and data 
 (e.g., Llama 2 \cite{llama2}, Llama 3 \cite{llama3} for text generation) and created optimized versions of BERT 
 (such as RoBERTa \cite{roberta}, ALBERT \cite{albert}, and DistilBERT \cite{distilbert}) 
@@ -115,29 +139,71 @@ to improve training effectiveness or model efficiency.
 A major focus has been on addressing the quadratic complexity of standard self-attention with respect 
 to sequence length \cite{nystromformer}. 
 Vanilla Transformers compute attention between all pairs of $n$ tokens, 
-which scales with $O(n^2)$ in time and memory. 
+which scales with $O(n^2)$ in time and memory needed. 
 This becomes a problem for long sequences like lengthy documents or code analysis 
 (e.g., an entire mobile apps code can consist of thousands of tokens). 
 Starting around 2020, new and more efficient Transformers emerged to tackle this limitation.
 
-Beltagy et al. introduced Longformer \cite{longformer}, 
-which implements a sparse attention pattern to handle long text efficiently. 
-Instead of each token attending to all others, 
-Longformer restricts attention to a local window around each token and selectively uses a few 
-global tokens. 
-This combination allows the model to capture local context while still communicating information globally 
-through the special tokens. 
-By limiting the attention range, Longformer can process sequences up to 
-4000 tokens with less than quadratic cost. 
+One notable example of an encoder only Transformer optimized for long text processing is Longformer \cite{longformer}. 
+Longformer addresses the struggle of quadratic complexity by implementing a sparse attention pattern, 
+allowing it to scale efficiently while preserving contextual understanding. 
+Instead of each token attending to all others, Longformer uses a sliding window attention mechanism, 
+where each token attends only to a fixed number of nearby tokens. 
+Additionally, it employs global attention on select tokens (like the CLS token), 
+enabling the model to capture broader contextual information across the sequence. 
+This combination ensures efficient processing while keeping the ability to model long range dependencies. 
+As a result, Longformer can process sequences of up to 4,000 tokens with a computational cost that grows linearly, 
+rather than quadratically, with input sequence length. 
+These design choices are supposed to make it  effective for tasks such as document classification, 
+question answering, and summarization \cite{longformer}.
 
-BigBird \cite{bigbird}, introduced by Zaheer et al., 
-takes a similar sparse attention approach. 
-It mixes local attention, random attention, and a handful of global tokens to ensure every token can 
-at least indirectly attend to every other token. 
-BigBird can also handle sequences of up to 4000 tokens with manageable computation.
-Both Longformer and BigBird reported that by limiting attention to only a subset of tokens 
-(rather than all pairs), 
-Transformers can scale to long sequences without sacrificing too much performance.
+Another similar approach is BigBird \cite{bigbird}, 
+which also uses sparse attention mechanism to efficiently handle long sequences while maintaining context. 
+Like Longformer, BigBird reduces the quadratic complexity of traditional self-attention by limiting the number of attended tokens. 
+However, BigBird extends the sparse attention paradigm by incorporating three types of attention: 
+local attention, where each token attends to its nearest neighbors; 
+random attention, where tokens attend to a few randomly selected tokens; 
+and global attention (like the CLS token), where a small set of tokens attend to all others. 
+This approach ensures that every token can at least indirectly attend to all others, 
+maintaining the model's ability to capture long range dependencies.
+BigBird can also process sequences up 4000 tokens, while maintaining linear complexity.
+The authors claim that it is particularly suitable for long document NLP tasks such as 
+question answering, summarization, and classification. 
+Compared to Longformer, which primarily relies on windowed local attention and selected global tokens, 
+BigBirds use of random attention supposedly allows for a better balance between efficiency and 
+the ability to propagate information across distant tokens. 
+Empirical studies have shown that BigBird outperforms Longformer in tasks requiring deep contextual understanding across long documents, 
+such as multi-hop question answering and document classification \cite{bigbird}.
+
+Another upgrade is promised by ModernBERT \cite{modernbert}.
+ModernBERT is an optimized encoder only Transformer model that builds upon BERT while employing showing improvements in efficiency, 
+scalability, and sequence length. 
+Unlike the original BERT, which was limited to 512 tokens, ModernBERT extends its native sequence length to 8,192 tokens, 
+making it more capable of handling long context tasks. 
+This is achieved without introducing sparse attention mechanisms like Longformer or BigBird, 
+instead using more efficient attention computation, better normalization techniques, and optimized training strategies.
+A key feature of ModernBERT is its use of alternating attention layers, where some layers apply full global attention, 
+while others apply localized attention to reduce computational overhead while maintaining strong contextual understanding. 
+Additionally, Rotary Positional Embeddings replace BERTs absolute positional embeddings, 
+allowing ModernBERT to generalize more effectively to long sequences. 
+To further enhance efficiency, normalization is used before rather than after the attention sublayer, 
+stabilizing training and improving gradient flow.
+ModernBERT was trained on 2 trillion tokens, 
+covering diverse domains such as long text documents, 
+retrieval tasks, and code based datasets. 
+Unlike previous BERT models, 
+ModernBERT removes padding tokens during computation (a technique known as "unpadding"), 
+reducing redundant operations and making inference more memory-efficient. 
+These optimizations allow ModernBERT to match or surpass SOTA results across classification, retrieval, and multi-vector search tasks, 
+while remaining faster and more scalable than its predecessors.
+Compared to Longformer and BigBird, which rely on sparse attention mechanisms to scale to long sequences, 
+ModernBERT maintains full bidirectional attention, ensuring stronger contextual modeling. 
+While Longformer employs local windowed attention with select global tokens, and BigBird combines local, random, and global attention, 
+ModernBERT balances efficiency end effectiveness through improved attention 
+computation and optimized training techniques. 
+This makes it a more general purpose solution, 
+excelling in classification, retrieval, 
+and document understanding, while remaining highly efficient for real world deployment on common GPUs \cite{modernbert}.
 
 Another approach is Nyströmformer \cite{nystromformer} by Xiong et al. 
 that applies the Nyström method (a technique for matrix approximation) to the self-attention computation.
@@ -148,24 +214,12 @@ This approximation allows the model to scale linearly with sequence length,
 a big improvement in efficiency. 
 Nyströmformer reports competitive accuracy on many NLP tasks compared to 
 standard Transformer, despite using only a fraction of the computation. 
-This kind of efficient attention is especially relevant for resource constrained settings. 
+This kind of efficient attention is especially relevant for resource constrained settings.
 For instance, the recent DetectBERT \cite{detectbert} approach for Android malware analysis 
 leveraged a Nyströmformer layer to handle a large amount of Embeddings at once 
 (more details in section \ref{sec:detectbert}). 
 By using Nyströmformer, DetectBERT reports to process each app in a single forward pass (up to ~8000 tokens) 
 with only ~2 GB of GPU memory, achieving inference times on the order of 5 milliseconds per app. 
-
-Researchers have also revisited the classic BERT model to incorporate recent advancements, 
-leading to the development of ModernBERT.
-ModernBERT extends the native input length to 8000 tokens, overcoming BERTs original 512-token limit. 
-It also includes optimization techniques from the Transformer research of the past few years 
-(such as improved training regimes, more efficient attention implementations, 
-and better normalization methods). 
-Trained on 2 trillion tokens, ModernBERT achieves SOTA results across a wide array of 
-classification and retrieval tasks (including domains like long text and code). 
-Impressively, these gains seem come without tradeoffs in practicality.
-ModernBERT is faster and more memory-efficient than older encoders and is still 
-running inference on common GPUs \cite{modernbert}.
 
 \section{Malware Detection}
 

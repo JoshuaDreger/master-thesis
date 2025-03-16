@@ -153,9 +153,9 @@ This is a very good result as for example DetectBERT only achieves up to 79\% on
 split subset \ref{tab:detectbert-results}.
 It is important to note that both algorithms were only conducted on a subset of Transcend,
 as table \ref{tab:full_transcendence_permissions_a_p} shows that when the Transformer based
-architecture is trained on the full transcending dataset, the performance increases from 85\% 
-to 91\%, so it is likely that the performance of DetectBERT would increase its performance
-as well if it was trained on the full dataset. However, it is unlikely that it would achieve the
+architecture is trained on the full transcending dataset, the F1 score decreases from 85\% 
+to 67\%, so it is likely that the performance of DetectBERT would decrease its performance
+as well if it was trained on the full dataset. It is unlikely that it would achieve the
 F1 score of 97\% that was reported in the paper from the original authors \cite{detectbert}
 (at least for the Transcend dataset, for the DexRay set the score might hold.).
 
@@ -183,7 +183,7 @@ Both our approach (sketched in figure \ref{fig:java_transformer_schema}) and the
 native DexBERT/DetectBERT approach (sketched in figure \ref{fig:detectbert_schema}) were then evaluated on the same
 Transcending subset, both with the DetectBERT decision head.
 Our results (table \ref{tab:decision_head_comparison}) with an F1 score of 82\% compared to the 
-results we achieved on the DexRay encoder (table \ref{tab:detectbert-results}) with 79\% show the 
+results we achieved on the DexRay encoder (table \ref{tab:detectbert-results}) with 80\% show the 
 potential of our modernBERT based encoding of Java classes, compared to the DexBERT based 
 encoding of smali classes.
 However, just as the DexBERT approach, our approach has wasted potential as only the decision 
@@ -194,12 +194,11 @@ Additionally when comparing multiple encoder models as encoders for the simple f
 our results show that even if training of the encoder model is enabled, only some models 
 work as Encoder models while others do not exceed a random guessing as shown in table 
 \ref{tab:encoder_model_comparison_cls}.
-The BigBird (33\%) and Longformer (33\%) models probably compared so badly next 
-to modernBERT (85\%) becasue the 
-embedding of the CLS token was used and BigBird and Longformer use sparse Attention, possibly
+The BigBird and Longformer models probably compared so badly next 
+to modernBERT because BigBird and Longformer use sparse Attention, possibly
 decreasing the effectiveness of the CLS token as a tradeoff for performance.
 However, even when training the last fully connected layer on the average of all embedded tokens, 
-modernBERT (81\%) greatly outperforms BigBird (62\%) and Longformer (64\%) as shown in table 
+modernBERT greatly outperforms BigBird and Longformer as shown in table 
 \ref{tab:encoder_model_comparison_average}.
 
 These results show that the architecture that is used for the Encoder has a much bigger 
@@ -223,6 +222,8 @@ by not having the same rules for what counts as malware (Figure \ref{fig:euphony
 or by not representing the full data distribution (Figure \ref{fig:androzoo_temporal}). 
 We found that especially the DexRay \cite{dexray} dataset is flawed due to an imbalance between classes in 
 code volume. 
+Also our used Transcend subset is unfit as a dataset as we showed when comparing results for one of our experiments 
+on this subset compared to the full Transcend dataset.
 All these limiting factors of the datasets decrease the reliability of the algorithms 
 that are trained on them, including ours, just as all conducted baselines.
 
@@ -250,7 +251,7 @@ encompassing approximately 15\% of its total volume.
 This reduction limits the diversity of malware samples encountered during training, 
 affecting our models ability to properly distinguish between different kinds of goodware and malware. 
 We showed in table \ref{tab:full_transcendence_permissions_a_p} how the
-performance of our algorithm increased significantly when training it on the full dataset.
+performance of our algorithm decrease when training it on the full dataset.
 
 We also showed how new foundational models like modernBERT unlock very simple and yet 
 effective architectures. 
