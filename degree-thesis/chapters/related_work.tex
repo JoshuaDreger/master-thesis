@@ -369,12 +369,12 @@ MalBERTv2 reports an F1 score of 97\% when evaluated on a mix of Android malware
 On smaller subsets, MalBERTv2s F1 score ranged from about 82\% up to 94\%. 
 These BERT based detectors demonstrate the Transformers ability to learn meaningful features from 
 app data (manifest or code), resulting in high precision and recall. 
-A limitation is that their large size (e.g. BERT base with 110 million parameters) can be expensive to execute. 
+A limitation is that their large size (e.g. BERT base with 110 million parameters) can be expensive to train and execute. 
 
 Purely codebased is another approach called DetectBERT \cite{detectbert}.
 DetectBERT is a transformer based approach to Android malware detection that 
 builds upon DexBERT \cite{dexbert}, 
-another transformer based model designed for smali class level analysis of Android Smali code.
+another transformer based model designed for Smali class level analysis of Android Smali code.
 Using a Correlated Multiple Instance Learning (c-MIL) framework, 
 DetectBERT aggregates Smali class embeddings of DexBERT into an app level representation.
 The DetectBERT model is further analyzed in Chapter \ref{sec:detectbert} where it is evaluated as baseline.
@@ -430,8 +430,8 @@ it jointly models an entire Android malware ecosystem as a graph with various en
 (apps, developers, markets) and learns relations both spatially (graph connections) and temporally 
 (evolution over time). 
 By using a specialized Transformer on this heterogeneous graph, 
-their system (called Dr.Droid) can detect malware while explicitly tracking how malware campaigns 
-evolve and propagate. 
+their system (called Dr.Droid) can detect malware while explicitly tracking how malware 
+evolves. 
 This approach directly tackles concept drift: as new malware appears, 
 the temporal graph Transformer updates the representation of the “drifting” nodes, 
 helping to catch novel threats that differ from past training data. 
@@ -474,12 +474,9 @@ F1-scores than earlier approaches based on fixed features or classical classifie
 For instance, MalBERTv2 obtained an average F1 around 97\%, whereas a classical 
 SVM baseline might linger much lower (in one comparison, SVM was ~82\% F1 \cite{malbert_two}). 
 Even when Transformers are applied to more challenging tasks like family classification 
-or zero day malware, they tend to perform impressively due to their representation learning strength. 
-That said, direct metric comparisons should be made with caution: 
-studies use different datasets (Drebin, DexRay, Transcend, etc.), and some datasets 
-are far more challenging than others. This has been proven during the baseline creation of this work where
-the same very basic algorithm achieved performances varying from 8\% to 94\% depending on the dataset it was used on
-(table \ref{tab:treestump} in section \ref{sec:baseline}). 
+or zero day malware, they tend to perform impressively due to their representation learning strength.
+Overall the authors of new transformer based malware detection systems, often report superior 
+performance compared to traditional non transformer approaches \cite{detectbert,malbert_two, htgt}
 
 Efficiency metrics are also crucial, model size, 
 inference time, and memory usage vary in between models and approaches. 
@@ -496,30 +493,6 @@ Large cloud providers (Google, Tencent, etc.) can afford to run Transformer dete
 backends to check apps (the deployment of Dr.Droid is an example
 \cite{htgt}
 ), whereas on mobile devices the malware scanning must be conservative in resource use. 
-
-Lastly, security against adversarial attacks is an emerging concern \cite{vorlesung}. 
-Transformers can be fooled by adversarial examples malicious inputs subtly modified to evade detection. 
-Real world deployment must consider robustness techniques (adversarial training, ensemble models, 
-rule based checks) alongside the Transformer to prevent adversaries from exploiting the learned 
-patterns. 
-In summary, the landscape of Transformer based architectures for mobile malware detection is rapidly 
-evolving, with novel models pushing the SOTA in accuracy and adaptability. 
-From BERT inspired models like MalBERT, BERTroid, and SeMalBERT that excel at static code analysis, 
-to efficiency oriented Transformers (Longformer, Nyströmformer) enabling large scale and long sequence 
-processing, these approaches greatly enhance our ability to detect malware under the challenging 
-conditions of obfuscation, concept drift, and huge app volumes. 
-They consistently demonstrate higher precision and recall than earlier methods, 
-often achieving F1-scores above 0.95 on benchmark datasets
-\cite{malbert_two, bertroid, detectbert}. 
-Their strengths lie in modeling complex patterns and contexts other models cannot. 
-Yet, there are trade-offs to consider: Transformers demand substantial computational resources.
-. Ongoing research is addressing these issues through model compression and specialized architectures. 
-Importantly, some Transformer based detectors have matured to real world deployment 
-(protecting users at scale
-\cite{htgt}
-), highlighting their practical value. 
-As the malware arms race continues, Transformer architectures, with their adaptability and power, 
-are capable to play a central role in the next generation of mobile malware defense systems.
 
 A deeper survey of transformer based malware detection is given by Alshomrani et al. 
 \cite{transformer_malware_overview}. 

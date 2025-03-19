@@ -77,7 +77,7 @@ This appendix provides additional charts that can be helpfull fore more in depth
     \end{tabular}
 \end{table}
 
-\vspace{2em} % Adjust vertical spacing between tables
+\vspace{3em} % Adjust vertical spacing between tables
 
 \begin{table}[h!]
     \caption{\label{tab:decisiontreecombined}%
@@ -97,14 +97,15 @@ This appendix provides additional charts that can be helpfull fore more in depth
     \end{tabular}
 \end{table}
 
-\newpage
+\vspace{80px} % Adjust vertical spacing after the section header if needed
+
 
 \section{Evalutaion}\label{AppendixEvalutaion}
 
 \vspace{0em} % Adjust vertical spacing after the section header if needed
 
 
-\begin{table}[h] 
+\begin{table}[b] 
     \caption{\label{tab:encoder_model_comparison_average}%
     Performance comparison of different encoder models for generating embeddings. The APK representation is fixed to Activities (A) and Permissions (P). The encoder was trained through backpropagation in this experiment. The transcenden subset was used as dataset. The average of all tokens was used to calculate a single embedding as APK representation.}    
     \resizebox{\textwidth}{!}{%
@@ -120,77 +121,3 @@ This appendix provides additional charts that can be helpfull fore more in depth
     }
 \end{table}
 
-
-
-
-
-\chapter{Archive}
-
-\begin{table}
-    \caption{Java Statistics Summary for DexRay, Transcend, and Drebin}
-    \label{tab:statistics1}
-    \centering
-    \footnotesize
-    \begin{tabular}{l c c c c c}
-        \toprule
-        \tabhead{Label} & \tabhead{Q1} & \tabhead{Q3} & \tabhead{Median} & \tabhead{Mean} & \tabhead{Number of Outliers} \\
-        \midrule
-        \multicolumn{6}{l}{\textbf{Drebin}} \\
-        Goodware & 19 & 176 & 60 & 161.83 & 13243 \\
-        Malware & 18 & 224 & 66 & 176.87 & 506 \\
-        \midrule
-        \multicolumn{6}{l}{\textbf{Transcending}} \\
-        Goodware & 854 & 2899 & 1800 & 1941.68 & 847 \\
-        Malware & 52 & 2244 & 738 & 1312.26 & 996 \\
-        \midrule
-        \multicolumn{6}{l}{\textbf{DexRay}} \\
-        Goodware & 1035 & 3084 & 2007 & 2132.37 & 277 \\
-        Malware & 7 & 11 & 11 & 239.98 & 14308 \\
-        \bottomrule
-    \end{tabular}
-\end{table}
-
-\begin{table}
-    \caption{Smali Statistics Summary for DexRay, Transcend, and Drebin}
-    \label{tab:statistics2}
-    \centering
-    \footnotesize
-    \begin{tabular}{l c c c c c}
-        \toprule
-        \tabhead{Label} & \tabhead{Q1} & \tabhead{Q3} & \tabhead{Median} & \tabhead{Mean} & \tabhead{Number of Outliers} \\
-        \midrule
-        \multicolumn{6}{l}{\textbf{DexRay}} \\
-        Goodware & 16106 & 41352 & 29546 & 28603.12 & 0 \\
-        Malware & 445 & 817 & 598 & 4113.59 & 13704 \\
-        \midrule
-        \multicolumn{6}{l}{\textbf{Transcend}} \\
-        Goodware & 13145 & 40372 & 25364 & 27234.10 & 1 \\
-        Malware & 764 & 25015 & 7057 & 15912.92 & 605 \\
-        \midrule
-        \multicolumn{6}{l}{\textbf{Drebin}} \\
-        Goodware & 331 & 2353 & 901 & 2275.87 & 14288 \\
-        Malware & 173 & 2316 & 805 & 2161.74 & 899 \\
-        \bottomrule
-    \end{tabular}
-\end{table}
-
-\begin{table}[]
-    \caption{\label{tab:detectbert-results-weighted}%
-        DetectBERT Benchmark Results Across Datasets and Splits.  
-        The results are reported for both random and time-based splits, 
-        highlighting the effectiveness of the model in distinguishing between 
-        goodware and malware. 
-        On the DexRay dataset, DetectBERT consistently achieves higher accuracy, 
-        particularly for goodware classification.}
-    \resizebox{\textwidth}{!}{%
-    \begin{tabular}{@{}llcccc@{}}
-    \toprule
-    \textbf{Dataset} & \textbf{Split} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1} \\ \cmidrule(r){1-2} \cmidrule(lr){3-6}
-    DexRay (Subset)  & Random     & 89.57\% & 89.57\% & 89.57\% & 89.57\% \\
-                     & Time-based & 89.17\% & 90.00\% & 89.17\% & 89.10\% \\ \addlinespace
-    Transcend (Subset) & Random     & 81.77\% & 82.46\% & 81.77\% & 81.77\% \\
-                       & Time-based & 78.67\% & 78.73\% & 78.67\% & 78.68\% \\
-    \bottomrule
-    \end{tabular}%
-    }
-\end{table}

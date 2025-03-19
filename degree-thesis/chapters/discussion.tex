@@ -2,54 +2,82 @@
 
 \label{Discussion} % For referencing the chapter elsewhere, use \ref{Chapter1}
 
-\section{Other Transformer based architectures}
+This chapter is structured into three main sections, systematically examining 
+Transformer-based architectures \ref{sec:other_transformer}, 
+interpreting experimental outcomes \ref{sec:interpretation}, 
+and discussing broader implications  \ref{sec:implication}. 
+Initially, the chapter reviews alternative Transformer architectures beyond encoder only models, 
+including decoder only models for anomaly detection, 
+encoder-decoder models for deobfuscation, and graph Transformers. 
+The Interpretation section provides an analysis of experimental findings, comparing encoder effectiveness, 
+decision head performance, and dataset influences, 
+highlighting critical insights into model optimization and architecture selection. 
+Finally, the Implication section evaluates the practical considerations, dataset limitations, computational constraints, 
+and real world applicability of Transformer models, emphasizing future research directions, 
+the necessity of robustness against adversarial attacks, and potential strategies for effective deployment 
+in mobile malware detection.
 
-In the Evaluation Part of this thesis exclusively encoder only Transformers were evaluated 
-for mobile malware detection.
-While the Encoder is the first and most obvious choice, there are other Transformer 
-architectures (see section \ref{sec:rel_transformer} that have potential in 
-advancing the field. Those other approaches are discussed in this chapter.
+\section{Other Transformer based architectures}
+\label{sec:other_transformer}
+
+% Explaining the Chapter
+In the evaluation section of this thesis, only encoder-only Transformers were assessed for mobile malware detection.
+While the encoder is the most straightforward and commonly used choice, other Transformer architectures 
+(see Section \ref{sec:rel_transformer}) also have the potential to advance the field.
+This chapter discusses these alternative approaches.
 
 \subsection{Decoder only Transformer based approaches}
 
-Decoder only Transformers operate autoregressively, predicting the next token in a sequence, one by one.
-When it comes to the task of malware detection different applications for decoder only models come to mind.
+% Intro
+Decoder-only Transformers generate sequences autoregressively, predicting the next token one step at a time.
+In the context of malware detection, several possible applications for these models come to mind.
 
-First, a decoder only model can serve as an anomaly detector: 
-if a sequence of instructions or API calls from a code class has a low probability under the model, 
-it may indicate malicious or obfuscated behavior not seen in benign software 
-\cite{tbased_anomalydetection,anomalybased_classification}. 
-This approach uses the language models learned distribution to flag outliers.
+% Decoders for Anomaly Detection
+One potential application of a decoder-only model in malware detection is anomaly detection.
+If a sequence of instructions or API calls from a code class has a low probability under the model, 
+it may indicate malicious or obfuscated behavior that differs from benign software 
+\cite{tbased_anomalydetection, anomalybased_classification}.
+This approach leverages the learned distribution of the language model to identify and flag outliers.
 
-Second, decoder only models can be integrated into multi step analysis frameworks.
-Here one idea setup where one Transformer agent generates malicious behavior (or code variants) 
-and another agent (e.g., a detector model) evaluates them. 
-Such a generator detector pairing can also work as a form of adversarial training \cite{adversarial_training}.
-If such a Framework could be designed without a human in the loop, a reinforcement learning setup 
-could be designed. As reinforcement setups have proven very effective in the past \cite{deepseek, alphago}, 
-this approach might as well show strong results.
-However, we did try to set up a multiagent system as part of this thesis that failed to work.
-The setup was based on the crewai \footnote{https://www.crewai.com/} Framework with the 8B and 70B Llama models \cite{llama3modelcard} 
-as base LLM. The proof of concept for this approach was to have one agent analyze the manifest.xml file
-and ask another agent questions about the java classes that were defined as activities, services, 
-receivers and providers. The agents were given a prompt template (see appendix figure \ref{fig:prompt_output}), 
-a system template (see appendix figure \ref{fig:system_output}) and tools that they can use.
-Unfortunately the approach did not work as the agents were not able to consistently use their 
-tools or communicate with other agents and in addition they tend to jump to conclusions once 
-a problem came up as shown in the appendix figure \ref{fig:agent_output}. The conclusion here seems to be that while such a 
-multiagent architecture seems promising in the field of mobile malware detection, the base 
-LLMs yet have to improve in order to reliably work in such a setting.
+% Multi Agent System
+Another potential application of decoder-only models is their integration into multi step analysis frameworks.
+One possible setup involves a Transformer agent generating malicious behavior or code variants, 
+while another agent, a detector model, evaluates them.
+This generator detector pairing can also function as a form of adversarial training \cite{adversarial_training}.
+If such a framework could be designed without human intervention, it could enable a reinforcement learning approach.
+Given the past success of reinforcement learning \cite{deepseek, alphago}, 
+this method may yield strong results in malware detection.
+However, an attempt to implement a multiagent system as part of this thesis was unsuccessful.
+The setup was based on the crewai framework\footnote{https://www.crewai.com/}, 
+using the 8B and 70B LLaMA models \cite{llama3modelcard} as base LLMs.
+The proof of concept involved one agent analyzing the Manifest.xml 
+file and another agent answering questions about the Java classes defined as activities, services, receivers, and providers.
+The agents were provided with a prompt template 
+(see Appendix, Figure \ref{fig:prompt_output}), 
+a system template (see Appendix, Figure \ref{fig:system_output}), and access to various tools.
+Unfortunately, this approach did not succeed.
+The agents were unable to consistently use their tools or communicate effectively with one another.
+Additionally, they tended to jump to conclusions when encountering challenges, 
+as shown in Appendix Figure \ref{fig:agent_output}.
+The conclusion here is that while multi agent architectures hold promise 
+for mobile malware detection, current LLMs still need improvements to function reliably in such a setting.
 
-A third Idea would be to use a model that was trained as a transformer decoder but use it 
-to encode a sequence. This could be done by using the normally hidden token embeddings
-at each step, before generating the actual output.
-The hidden states of the decoder at each step then serve as an encoding of the sequence.
-The last hidden state of the decoder could be used as a dense representation 
-of the input sequence.
-While in theory, Transformer encoders (like BERT) are typically better 
-suited for encoding because they 
-process the entire sequence in a Bidirectional manner,
-this is yet to be proven.
+% Call for further Research
+While our approach did not succeed, we strongly recommend further exploration of this area.
+Multiagent systems are becoming increasingly viable, 
+and advancements in large language models continue to improve their capabilities.
+Future research should consider using models such as 
+Qwen \cite{qwen} and DeepSeek \cite{deepseek} for developing multiagent frameworks.
+With more refined architectures and improved coordination between agents, 
+such systems could play a significant role in advancing mobile malware detection.
+
+% Decoder as Encoder
+A third idea is to use a model trained as a Transformer decoder to encode a sequence.
+This can be achieved by extracting the normally hidden token embeddings at each step before generating the actual output.
+The hidden states of the decoder at each step would then serve as an encoding of the sequence, 
+with the last hidden state acting as a dense representation of the entire input.
+While Transformer encoders (such as BERT) are generally considered more suitable 
+for encoding because they process sequences bidirectionally, this assumption has yet to be definitively proven.
 
 \subsection{Encoder-Decoder Transformer based approaches}
 
@@ -96,154 +124,198 @@ Nonetheless, they may have difficulties with advanced malware that closely resem
 
 \subsection{Graph Transformer based approaches}
 
-
-Another approach that can leverage either of the different Transformer architectures is based 
-on the idea that APKs can be represented as graphs rather than by language.
-Examples for these Graphs are control flow graphs of functions \cite{scgformer}, 
-call graphs between functions \cite{graphbert}, 
-or abstract syntax trees \cite{tbased_codesum}). 
-Graph based Transformers apply the attention mechanisms to graph nodes and edges rather than 
-linear sequences of tokens. 
-For example, Moon et al. \cite{controlflowbert} proposed a Directional Graph Transformer 
-to embed control flow graphs for malware classification. 
-In this model, each node in a functions control flow graph 
-is treated similarly to a token, and attention is computed along the graphs adjacency structure, 
-capturing relationships like loops. 
-Bu and Cho 
-\cite{trplet_graph_tran} 
-took this further with a triplet trained graph Transformer, 
-using a few shot learning approach with contrastive triplet loss to distinguish 
-malware families via their graph embeddings. 
-Additionally, the previous in chapter \ref{sec:amd} mentioned approach of the 
-"Heterogeneous Temporal Graph Transformer" is a prime example how a graph transformer is 
-used at a large company as Tencent \footnote{https://www.tencent.com/en-us/} in production to detect new malware \cite{htgt}.
-The graph Transformer processes structural information that sequence models might miss.
-These models first convert code to graphs,
-then apply a transformer model on the graph. 
-The multi head attention is computed over graph neighborhoods, 
-showing how strongly one code block is related to another in the context of 
-malware behavior 
-\cite{transformer_malware_overview}. 
-This has shown promise in evaluating relationships within code and to detect which functions 
-are critical to malicious behavior. 
+% Graph Transformer based approaches
+Another approach that can leverage different Transformer architectures is based on representing APKs 
+as graphs rather than language sequences.
+Examples of such graph representations include control flow graphs of functions \cite{scgformer}, 
+call graphs between functions \cite{graphbert}, and abstract syntax trees \cite{tbased_codesum}.
+Graph based Transformers apply attention mechanisms to graph nodes and edges rather than processing linear sequences of tokens.
+For instance, Moon et al. \cite{controlflowbert} proposed a Directional Graph Transformer 
+that embeds control flow graphs for malware classification.
+In this model, each node in a functions control flow graph is treated similarly to a token, 
+and attention is computed along the graphs adjacency structure, capturing relationships such as loops.
+Bu and Cho \cite{trplet_graph_tran} extended this idea with a triplet trained graph Transformer, 
+utilizing a few-shot learning approach with contrastive triplet 
+loss to distinguish malware families through their graph embeddings.
+Additionally, as mentioned in Chapter \ref{sec:amd}, 
+the Heterogeneous Temporal Graph Transformer is a prime example of a graph based Transformer used in real-world production.
+Tencent\footnote{https://www.tencent.com/en-us/} employs this model to detect new malware at scale \cite{htgt}.
+Graph Transformers process structural information that sequence based models might overlook.
+These models first convert code into graph representations and then apply Transformer based processing on the graph.
+Multi head attention is computed over graph neighborhoods, 
+allowing the model to determine how strongly one code block relates to another 
+in the context of malware behavior \cite{transformer_malware_overview}.
+This approach has shown promise in evaluating relationships within code and 
+identifying functions that are critical to malicious behavior.
 
 \section{Interpretation}
+\label{sec:interpretation}
 
-As part of this Thesis, two main experiments were evaluated.
-The first experiment (shown in figure \ref{fig:permission_transformer_schema}) represented
-APKs by their meta information stored in the manifest.xml file, embedded this representation
-in one iteration, and then evaluated the embedding vector of the CLS token via a fully connected layer.
-The experiment demonstrated the general effectiveness of the architecture
-(shown in figure \ref{fig:bertbased_malwaredetection_schema}) by showing that when processing only
-the permissions of an APK, it obtained much better results—up to 76\%
-\ref{tab:apk_representation_results_unfrozen}, compared to only 39\% when training a decision tree
-on the same permissions \ref{tab:decisiontreepermissions}. 
-This drastic increase could be explained by the fact that transformer 
-based architectures can interpret custom permissions more effectively than a decision tree due 
-to their capability to recognize semantic and contextual relationships, 
-rather than just feature counting or simple rule-based splits. 
-Another contributing factor might be that transformer based models are inherently better at 
-learning complex relationships of permissions, 
-as opposed to a decision tree that was constrained by its depth of 15, limiting its complexity.
+% First Experiment - general POC
+As part of this thesis, two main experiments were conducted.
+The first experiment (illustrated in Figure \ref{fig:permission_transformer_schema}) 
+represented APKs using the meta information stored in the Manifest.xml file.
+This representation was embedded in a single iteration, 
+and the resulting CLS token embedding was evaluated using a fully connected layer.
+The experiment validated the general effectiveness of the proposed architecture 
+(Figure \ref{fig:bertbased_malwaredetection_schema}) by demonstrating that processing 
+only the permissions of an APK led to significantly improved results.
+Specifically, the Transformer-based model achieved an accuracy of up to 76\% 
+(Table \ref{tab:apk_representation_results_unfrozen}), 
+compared to only 39\% when using a decision tree trained on the same permissions (Table \ref{tab:decisiontreepermissions}).
+This drastic improvement can be attributed to the fact that Transformer based architectures 
+can interpret custom permissions more effectively than decision trees.
+Unlike decision trees, which primarily rely on feature counting or rule-based splits, 
+Transformers recognize semantic and contextual relationships.
+Additionally, Transformer models are inherently better at learning complex permission interactions, 
+whereas the decision tree used in this experiment was constrained by a maximum depth of 15, 
+limiting its ability to capture deeper patterns.
+However, one has to consider that the decision tree was evaluated on the full Transcend dataset while the 
+transformer based method was trained only on a subset. We showed in \ref{tab:full_transcendence_permissions_a_p} 
+how the performance of models can decrease if they are evaluated on the full dataset.
 
-Another result of the first experiment is that when using the Activities, Permissions and Services 
-as APK representation on the time based split Transcend subset, close to 85\% 
-F1 score could be achieved as seen in table \ref{tab:full_transcendence_permissions_a_p_s}.
-This is a very good result as for example DetectBERT only achieves up to 79\% on the same time based 
-split subset \ref{tab:detectbert-results}.
-It is important to note that both algorithms were only conducted on a subset of Transcend,
-as table \ref{tab:full_transcendence_permissions_a_p} shows that when the Transformer based
-architecture is trained on the full transcending dataset, the F1 score decreases from 85\% 
-to 67\%, so it is likely that the performance of DetectBERT would decrease its performance
-as well if it was trained on the full dataset. It is unlikely that it would achieve the
-F1 score of 97\% that was reported in the paper from the original authors \cite{detectbert}
-(at least for the Transcend dataset, for the DexRay set the score might hold.).
+% Comparing first experiment with DetectBERT  
+Another key finding from the first experiment is that when using Activities, Permissions, 
+and Services as the APK representation on the time based split of the Transcend subset, 
+an F1 score of nearly 85\% was achieved (Table \ref{tab:full_transcendence_permissions_a_p_s}).  
+This is a strong result, especially considering that DetectBERT only reached up to 79\% 
+on the same time-based split (Table \ref{tab:detectbert-results}).  
+The implication here is that we ahieved better results with our encoder based architecture for the 
+manifest representation of the APK rather than the more complex code representation.
+It is important to note that both models were evaluated on a subset of Transcend. 
+As shown in Table \ref{tab:full_transcendence_permissions_a_p}, 
+when the Manifest based architecture was trained on the full Transcend dataset, the F1 score dropped from 85\% to 67\%.  
+This suggests that DetectBERT would likely experience a similar decline in performance if trained on the full dataset.  
+Therefore, it is unlikely that DetectBERT would achieve the 97\% F1 score reported by its original authors \
+cite{detectbert} when applied to the Transcend dataset.
+For the DexRay dataset, however, the reported score may still hold.
 
-One remark that has to be made is, that when training the DetectBERT approach 
-(sketched in figure \ref{fig:detectbert_schema}) on the Transcending subset, just as the original work, 
-only the DetectBERT decision head was trained and not the DexBERT embedding model.
-When comparing the tables \ref{tab:apk_representation_results} and 
-\ref{tab:apk_representation_results_unfrozen} it becomes clear that when training the embedding 
-model as well as the decision head on the dataset, the performance increases drastically (by
-up to 11\% F1 score on the Transcending subset).
-Since DetectBERT outperforms the simple approach of the first experiment when the weights 
-of its embedding model are frozen by 5\% F1 score (see table \ref{tab:apk_representation_results}) the 
-potential of the DetectBERT approach becomes apparent if the encoder model would be trained as well.
+% We need to train the Encoder
+One important remark is that when training the DetectBERT approach (outlined in Figure \ref{fig:detectbert_schema}) 
+on the Transcend subset, only the DetectBERT decision head was trained, not the DexBERT embedding model.
+A comparison between Tables \ref{tab:apk_representation_results} and \ref{tab:apk_representation_results_unfrozen} 
+shows that training both the embedding model and the decision head on the dataset leads to a significant 
+performance increase of up to 11\% increase in F1 score on the Transcend subset.
+Additionally, the third experiment, which used a code based approach, 
+outperformed the simpler first experiment by 8\% in F1 score when the embedding model weights were frozen 
+(see Table \ref{tab:apk_representation_results}).
+This highlights the potential of the DetectBERT approach if the encoder model were also trained instead of remaining fixed.
+However, future work is required to develop a code-based architecture that allows training the encoder as well.
+This is particularly challenging because multiple encoder iterations are needed to generate one embedding per iteration, 
+and these embeddings are then pooled to form a global APK representation.
+Enabling backpropagation to reach each encoder iteration through the pooling mechanism, 
+especially when the number of encoder iterations per APK varies, poses a significant technical challenge.
 
-The second Experiment that was conducted as part of this thesis was a bit more complex than the first one.
-It resembled the DetectBERT approach more in a sense where the APK was represented by code.
-Other than smali code as for DetectBERT, the classes.dex file was compiled into java code.
-Our approach next embedded the javaclasses one by one, just as the detectBERT approach embedded smali classes.
-A distinct difference between the approaches was the handling of classes that exceeded the 
-context window size of the embedding model.
-DexBERT cuts of the code of the smali class once the token limit is reached.
-Our approach uses a sliding window approach where the mean of all the embeddings of one class is 
-calculated to generate a class representation.
-Both our approach (sketched in figure \ref{fig:java_transformer_schema}) and the 
-native DexBERT/DetectBERT approach (sketched in figure \ref{fig:detectbert_schema}) were then evaluated on the same
-Transcending subset, both with the DetectBERT decision head.
-Our results (table \ref{tab:decision_head_comparison}) with an F1 score of 82\% compared to the 
-results we achieved on the DexRay encoder (table \ref{tab:detectbert-results}) with 80\% show the 
-potential of our modernBERT based encoding of Java classes, compared to the DexBERT based 
-encoding of smali classes.
-However, just as the DexBERT approach, our approach has wasted potential as only the decision 
-head is trained. Enabling backpropagation on the encoder part is difficult if the APK gets 
-encoded in multiple iterations, but it also shows a lot of promise.
+% Comparing Decision Heads
+The second experiment conducted in this thesis was more complex than the first.
+It more closely resembled the DetectBERT approach in that APKs were represented by code.
+However, instead of using Smali code like DetectBERT, our method compiled the classes.dex file into Java code.
+Each Java class was then embedded individually, just as DetectBERT embedded Smali classes.
+A key difference between the two approaches was how they handled classes that exceeded the context 
+window size of the embedding model.
+DexBERT simply truncated the Smali class once the token limit was reached.
+In contrast, our approach applied a sliding window method, where the mean of all embeddings 
+from a given class was computed to generate a class representation.
+Both our approach (outlined in Figure \ref{fig:java_transformer_schema}) and the native DexBERT/DetectBERT 
+approach (outlined in Figure \ref{fig:detectbert_schema}) were evaluated on the same Transcend subset, 
+using the DetectBERT decision head for classification.
+Our results (Table \ref{tab:decision_head_comparison}) showed an F1 score of 68\%, compared to 80\% for the DexBERT based 
+encoder (Table \ref{tab:detectbert-results}).
+These results highlight that the DetectBERT decision head performs significantly better when applied to DexBERT 
+embeddings than when used with ModernBERT embeddings.
+However, when using an Average decision head with ModernBERT embeddings, an F1 score of 83\% was achieved,
+outperforming the DetectBERT decision head.
+It is worth noting that the original DetectBERT authors also compared an Average based decision head to the 
+DetectBERT head but found that DetectBERT outperformed the Average head.
+Another surprising observation is the strong performance of the Random decision head.
+The results indicate that the models predictions are far better than purely random guesses.
+Since the Random decision head selects a single Java class embedding at random and uses it as the APK representation, 
+this finding is unexpected.
+It suggests that, contrary to initial assumptions, many individual Java classes may contain indicators of malicious behavior.
+This result is even more puzzling considering the DetectBERT paper \cite{detectbert} reports an 82\% F1 score 
+for the Random head on the Smali dataset.
+This demonstrates the potential of using a ModernBERT based encoding of Java classes instead of a 
+DexBERT based encoding of Smali classes.
 
-Additionally when comparing multiple encoder models as encoders for the simple first experiment, 
-our results show that even if training of the encoder model is enabled, only some models 
-work as Encoder models while others do not exceed a random guessing as shown in table 
-\ref{tab:encoder_model_comparison_cls}.
-The BigBird and Longformer models probably compared so badly next 
-to modernBERT because BigBird and Longformer use sparse Attention, possibly
-decreasing the effectiveness of the CLS token as a tradeoff for performance.
-However, even when training the last fully connected layer on the average of all embedded tokens, 
-modernBERT greatly outperforms BigBird and Longformer as shown in table 
-\ref{tab:encoder_model_comparison_average}.
+% Different encoder model comparison
+When comparing different encoder models for the first experiment, 
+our results indicate that even when training of the encoder model is enabled, 
+only certain models function effectively as encoders, 
+while others fail to exceed random guessing (Table \ref{tab:encoder_model_comparison_cls}).
+Notably, BigBird and Longformer performed poorly compared to ModernBERT.
+This may be due to their use of sparse attention mechanisms, 
+which likely reduce the effectiveness of the CLS token as a tradeoff for improved efficiency.
+However, even when using the average of all embedded tokens instead of relying solely on the CLS token, 
+ModernBERT still significantly outperforms both BigBird and Longformer (Table \ref{tab:encoder_model_comparison_average}).
+While ModernBERT achieved better results using the CLS-based embedding, 
+the other two models showed improved performance when using the average-based embeddings.
+This suggests that different embedding models have distinct optimal representation techniques, 
+emphasizing the importance of selecting an approach tailored to the specific architecture.
 
-These results show that the architecture that is used for the Encoder has a much bigger 
-impact on the overall performance then the architecture of the decision head 
-(table \ref{tab:decision_head_comparison}).
-We even find that the very simple decision head that is based on the average of all the 
-java class representing CLS tokens, is more effective than the much more complex and 
-Transformer based DetectBERT approach, indicating that it might be prone to overfitting.
+% Embedding model has more influence than decision head
+These results demonstrate that the choice of encoder architecture has a greater influence on overall 
+performance than the decision head architecture (Table \ref{tab:decision_head_comparison}).
+In fact, even the very simple decision head based on the average of all Java class CLS token 
+embeddings outperforms the more complex, Transformer-based DetectBERT approach.
+This suggests that DetectBERT may be prone to overfitting, while simpler aggregation methods provide more 
+robust and generalizable representations.
 
 
 \section{Implication}
+\label{sec:implication}
 
-All our conducted experiments are built upon prior foundational work that enabled our experiments. 
-From the datasets \cite{drebin, transcend, dexray} to the general architecture that was 
-inspired by DetectBERT \cite{detectbert} over the transformer models 
-that were used as building blocks in that architecture \cite{modernbert,bigbird,longformer}. 
-While all of this prior work enabled us to conduct our research, it also limits our findings. 
-We showed in Chapter \ref{sec:datasets} how the datasets that we used are inherently flawed by 
-being unbalanced (Figure \ref{fig:smali_class_boxplots}, Table \ref{tab:treestump}), 
-by not having the same rules for what counts as malware (Figure \ref{fig:euphony_drebin_overlap}), 
-or by not representing the full data distribution (Figure \ref{fig:androzoo_temporal}). 
-We found that especially the DexRay \cite{dexray} dataset is flawed due to an imbalance between classes in 
-code volume. 
-Also our used Transcend subset is unfit as a dataset as we showed when comparing results for one of our experiments 
-on this subset compared to the full Transcend dataset.
-All these limiting factors of the datasets decrease the reliability of the algorithms 
-that are trained on them, including ours, just as all conducted baselines.
+% Data Limitations
+All our experiments build upon foundational research that made them possible.
+From the datasets \cite{drebin, transcend, dexray} to the general architecture inspired by 
+DetectBERT \cite{detectbert}, and the Transformer models used as building blocks 
+\cite{modernbert, bigbird, longformer}, prior work has provided the essential framework for our study.
+However, these dependencies also impose limitations on our findings.
+As discussed in Chapter \ref{sec:datasets}, the datasets we used have inherent flaws, 
+such as class imbalance (Figure \ref{fig:smali_class_boxplots}, Table \ref{tab:treestump}), 
+inconsistent definitions of malware (Figure \ref{fig:euphony_drebin_overlap}), 
+and incomplete representation of the full data distribution (Figure \ref{fig:androzoo_temporal}).
+In particular, the DexRay dataset \cite{dexray} is problematic due to an imbalance in code volume across different classes.
+We also showed that the datasets exhibit significant temporal and class imbalances. 
+This uneven distribution can affect the generalizability of findings. 
+Models trained on datasets with skewed temporal distributions may struggle to perform well on newer malware samples, 
+as they might overfit to patterns that are no longer representative of current threats. 
+Additionally, we found that our Transcend subset is not a suitable dataset, 
+as demonstrated when comparing experimental results on this subset versus the full Transcend dataset (Table \ref{tab:full_transcendence_permissions_a_p}).
+These dataset limitations reduce the reliability of the trained algorithms, 
+including our own, as well as the baselines used for comparison.
+That said, direct metric comparisons should always be made with caution: 
+previous studies uses different datasets (Drebin, DexRay, Transcend, etc.), and some datasets 
+are far more challenging than others. This has been proven during the baseline creation of this work where
+the same very basic algorithm achieved performances varying from 8\% to 94\% depending on the dataset it was used on
+(table \ref{tab:treestump} in section \ref{sec:baseline}). 
 
-Our experiments demonstrate promising results under controlled conditions, 
-but there might be notable gaps when considering real world deployment. 
+%Real world challanges
+Our experiments demonstrate strong results under controlled conditions, 
+but there may be significant gaps when considering real-world deployment.
 To explicitly test robustness against concept drift, 
-we consistently split our datasets into sequential train and test subsets, 
-ensuring our evaluation reflects potential drift over time \cite{tesseract}. 
-However, significant concept drift can also occur between different datasets or between 
-datasets and the real world, something our sequential splits cannot fully simulate. 
-Addressing this would require multiple sufficiently realistic datasets collected from various 
-contexts. 
-Furthermore, periodic retraining or online learning mechanisms should be integrated 
-into practical systems. 
+we consistently split our datasets into sequential training and test subsets, 
+ensuring that our evaluation captures potential temporal shifts \cite{tesseract}.
+However, concept drift can also occur between different datasets or between a dataset and real world 
+malware distributions, something our sequential splits cannot fully simulate.
+This we showed as well in chapter \ref{sec:datasets} where we found that eah dataset has unique properties, 
+with different algorithms achieving different benchmarks.
+Addressing this issue would require multiple, sufficiently realistic datasets collected from diverse contexts.
+Additionally, to maintain long term effectiveness, practical systems should integrate periodic 
+retraining or online learning mechanisms as suggested by \cite{tesseract}.
 
-The computational resources demanded by Transformer models could be a problem 
-in resource constrained environments such as mobile devices. 
-There has been research into compressing and distilling Transformers 
-(e.g., MobileBERT \cite{mobilebert} and TinyBERT \cite{tinybert}) 
-which could be applied so that a malware detector runs on devices with minimal battery impact. 
+%Runtime Performance
+An important factor in malware detection algorithms is their runtime performance.
+While we observed that ModernBERT runs more efficiently than BigBird and Longformer, 
+this observation was not systematically measured.
+Similarly, although the runtime differences between the manifest based and code based approaches were discussed, 
+they were never quantified.
+This represents another area for future research, 
+as execution time is just as critical as detection performance when comparing different methods.
+The computational demands of Transformer models can be particularly challenging in 
+resource constrained environments such as mobile devices.
+Research into Transformer compression and distillation, such as MobileBERT \cite{mobilebert} 
+and TinyBERT \cite{tinybert}—offers potential solutions for deploying malware detectors 
+with minimal battery and processing impact \cite{mobilebert}.
 
 Another limiting factor for the experiments of this thesis was of computational nature.
 Most experiments were conducted on only a subset of the transcend dataset, 
@@ -282,9 +354,25 @@ showed how sometimes simpler approaches are both more efficient and effective.
 Here computing the mean of all CLS embeddings was superior to contextualizing them
 via attention with DetectBERT.
 
-If Transformers get applied more in real world scenarios as is already the case for
-Tencent \cite{htgt}, we also need to make sure that attackers do not adapt to the weaknesses of
-Transformers.
-One example is that we need to defend the production systems from adversarial examples that have
-been proven to be effective against text based Transformer models \cite{adversarial_transformer}.
-
+Lastly, security against adversarial attacks is an emerging concern \cite{vorlesung}. 
+Transformers can be fooled by adversarial examples malicious inputs subtly modified to evade detection. 
+Real world deployment must consider robustness techniques (adversarial training, ensemble models, 
+rule based checks) alongside the Transformer to prevent adversaries from exploiting the learned 
+patterns. 
+In summary, the landscape of Transformer based architectures for mobile malware detection is rapidly 
+evolving, with novel models pushing the SOTA in accuracy and adaptability. 
+From BERT inspired models like MalBERT, BERTroid, and SeMalBERT that excel at static code analysis, 
+to efficiency oriented Transformers (Longformer, Nyströmformer) enabling large scale and long sequence 
+processing, these approaches greatly enhance our ability to detect malware under the challenging 
+conditions of obfuscation, concept drift, and huge app volumes. 
+They consistently demonstrate higher precision and recall than earlier methods, 
+often achieving F1-scores above 0.95 on benchmark datasets
+\cite{malbert_two, bertroid, detectbert}. 
+Their strengths lie in modeling complex patterns and contexts other models cannot. 
+Yet, there are trade-offs to consider: Transformers demand substantial computational resources.
+. Ongoing research is addressing these issues through model compression and specialized architectures. 
+Importantly, some Transformer based detectors have matured to real world deployment 
+(protecting users at scale
+\cite{htgt}), highlighting their practical value. 
+As the malware arms race continues, Transformer architectures, with their adaptability and power, 
+are capable to play a central role in the next generation of mobile malware defense systems.

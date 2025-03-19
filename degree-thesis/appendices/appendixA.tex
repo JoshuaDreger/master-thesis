@@ -1,58 +1,74 @@
 % Appendix A
  
-\chapter{Further Recommendations}
-\label{appendixa}
-
-This appendix contains further recommendations, which our students found useful in the past.
-
-\section{Introduction, Related Work, and Conclusion}
-
-\subsection{Introduction Chapter}
-
-Don’t be boring! Pull in the reader with a peculiar observation or a surprising result of your thesis.
-
-Approaches to structure your introduction:
-\begin{itemize}
-\item Start with the general, close with the specific.
-\item Start with what is already well-known, move on to what has only recently become known.
-\item State the objective of the thesis, then describe your approach.
-\end{itemize}
-
-End the introduction with a paragraph \emph{Outline of the Thesis} that describes its structure in prose.
-
-\subsection{Related Work Chapter}
-
-Think about a story and which message you want to convey. Some common themes are:
-\begin{itemize}
-\item “It used to be a difficult problem, but we know how to solve it.”
-\item “While a lot of proposals exist, none has gained traction in reality. X found that one of the primary reasons for that situation is …”
-\item “The field is a cat-and-mouse game between refined attacks and defenses. A common theme is … and overlooked areas are …”
-\item “While most of the current literature focuses on X, it would make sense to apply techniques from field Y to the problem. One could then refine the problem as …”
-\end{itemize}
-
-\subsection{Conclusion Chapter}
-
-A basic recipe for a conclusion chapter:
-\begin{itemize}
-\item a summary,
-\item a critical assessment of what you have achieved,
-\item pointers to related other topics,
-\item a statement of the impact of the results, and
-\item pointers to future work.
-\end{itemize}
-
-\section{Thesis Length}
-
-Typical theses range from 25 to 150 pages. There have been excellent theses at both ends of this spectrum. Do not worry too much about the page count. Write everything that is necessary to assess and reproduce your work, but no more. Less is more!
-
-Check the individual parts for an appropriate length: Do not write five pages in the introduction if the main part has only 15 pages.
+\chapter{Archive}
+\label{archive}
 
 
-\section{Practices to Avoid}
+\begin{table}
+    \caption{Java Statistics Summary for DexRay, Transcend, and Drebin}
+    \label{tab:statistics1}
+    \centering
+    \footnotesize
+    \begin{tabular}{l c c c c c}
+        \toprule
+        \tabhead{Label} & \tabhead{Q1} & \tabhead{Q3} & \tabhead{Median} & \tabhead{Mean} & \tabhead{Number of Outliers} \\
+        \midrule
+        \multicolumn{6}{l}{\textbf{Drebin}} \\
+        Goodware & 19 & 176 & 60 & 161.83 & 13243 \\
+        Malware & 18 & 224 & 66 & 176.87 & 506 \\
+        \midrule
+        \multicolumn{6}{l}{\textbf{Transcending}} \\
+        Goodware & 854 & 2899 & 1800 & 1941.68 & 847 \\
+        Malware & 52 & 2244 & 738 & 1312.26 & 996 \\
+        \midrule
+        \multicolumn{6}{l}{\textbf{DexRay}} \\
+        Goodware & 1035 & 3084 & 2007 & 2132.37 & 277 \\
+        Malware & 7 & 11 & 11 & 239.98 & 14308 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
 
-\begin{itemize}
-\item Colloquial style: “Computation power has skyrocketed in the last few years.”
-\item Widespread knowledge: “The Internet is becoming more and more important.”
-\item Superlatives: “One of the most beautiful concepts,” “great possibilities.”
-\item Be careful with strong claims: “the only possibility,” “the best solution,” “impossible.”
-\end{itemize}
+\begin{table}
+    \caption{Smali Statistics Summary for DexRay, Transcend, and Drebin}
+    \label{tab:statistics2}
+    \centering
+    \footnotesize
+    \begin{tabular}{l c c c c c}
+        \toprule
+        \tabhead{Label} & \tabhead{Q1} & \tabhead{Q3} & \tabhead{Median} & \tabhead{Mean} & \tabhead{Number of Outliers} \\
+        \midrule
+        \multicolumn{6}{l}{\textbf{DexRay}} \\
+        Goodware & 16106 & 41352 & 29546 & 28603.12 & 0 \\
+        Malware & 445 & 817 & 598 & 4113.59 & 13704 \\
+        \midrule
+        \multicolumn{6}{l}{\textbf{Transcend}} \\
+        Goodware & 13145 & 40372 & 25364 & 27234.10 & 1 \\
+        Malware & 764 & 25015 & 7057 & 15912.92 & 605 \\
+        \midrule
+        \multicolumn{6}{l}{\textbf{Drebin}} \\
+        Goodware & 331 & 2353 & 901 & 2275.87 & 14288 \\
+        Malware & 173 & 2316 & 805 & 2161.74 & 899 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}[]
+    \caption{\label{tab:detectbert-results-weighted}%
+        DetectBERT Benchmark Results Across Datasets and Splits.  
+        The results are reported for both random and time-based splits, 
+        highlighting the effectiveness of the model in distinguishing between 
+        goodware and malware. 
+        On the DexRay dataset, DetectBERT consistently achieves higher accuracy, 
+        particularly for goodware classification.}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{@{}llcccc@{}}
+    \toprule
+    \textbf{Dataset} & \textbf{Split} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1} \\ \cmidrule(r){1-2} \cmidrule(lr){3-6}
+    DexRay (Subset)  & Random     & 89.57\% & 89.57\% & 89.57\% & 89.57\% \\
+                     & Time-based & 89.17\% & 90.00\% & 89.17\% & 89.10\% \\ \addlinespace
+    Transcend (Subset) & Random     & 81.77\% & 82.46\% & 81.77\% & 81.77\% \\
+                       & Time-based & 78.67\% & 78.73\% & 78.67\% & 78.68\% \\
+    \bottomrule
+    \end{tabular}%
+    }
+\end{table}

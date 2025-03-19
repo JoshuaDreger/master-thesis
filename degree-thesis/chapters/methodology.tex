@@ -2,6 +2,21 @@
 
 \label{Methodology} % For referencing the chapter elsewhere, use \ref{Chapter2}
 
+The methodology chapter is structured into three main sections: 
+dataset evaluation \ref{sec:datasets}, baseline creation \ref{sec:baseline} 
+and experimental setup \ref{sec:experimental_setup}. 
+Initially, it evaluates and compares multiple datasets (Drebin, Transcend, DexRay, Androzoo) to highlight their suitability, 
+biases, and limitations in representing real world Android malware scenarios. 
+This is followed by creating non Transformer baselines using simpler models (e.g., decision trees, random forests) 
+to establish initial performance benchmarks. 
+Additionally, the methodology introduces DetectBERT, 
+a Transformer based model specifically designed for Android malware detection, 
+benchmarking its performance against previous results. 
+Finally, the experimental setup section outlines a generalized transformer encoder based framework, 
+presenting key stages (representation, embedding, and decision making) 
+that serve as the foundation for exploring various Transformer based models and 
+configurations in subsequent experiments.
+
 \section{Dataset Evaluation}
 \label{sec:datasets}
 
@@ -80,7 +95,7 @@ API calls, or behaviors flagged by antivirus software.
 One dataset might classify an APK as malware due to aggressive adware practices, 
 while another might only consider code executing malicious payloads. 
 These differences make the validation of labels very difficult.
-One Example that shows this issue is evident when comparing Drebin with Euphony 
+One example that shows this issue is evident when comparing Drebin with Euphony 
 (figure: \ref{fig:euphony_drebin_overlap}).
 Euphony and Drebin have a common subset, none of the sets is a true subset of the other.
 However, the APKs labeled as malware by Drebin are a true subset of Euphony.
@@ -123,14 +138,16 @@ There is no temporal overlap, which explains why there is no APK present in more
 these datasets (figure: \ref{fig:dataset_overlap}). 
 There is a gap between the third quarters of 2012 and 2013 where neither dataset has samples. 
 
-While the Transcend Dataset seems to be evenly distributed, 
-the other two datasets seem to show varying volumes over time. 
-This holds true for the overall volume but also about the evenness of the label distribution. 
-Here Drebin and DexRay show unbalanced malware sample behavior. 
-This uneven distribution can affect the generalizability of findings.
+While the Transcend dataset shows a relatively even distribution of APK samples over time, 
+the Drebin and DexRay datasets show significant variations in volume. 
+Drebin, in particular, has a sharp increase in APKs around 2010-2012, 
+followed by a steep decline, whereas DexRay has a peak in 2018-2019 before dropping off. 
+Additionally, the balance between goodware and malware samples varies across datasets. 
+Drebin and DexRay show a more unbalanced distribution of malware samples over time, 
+while Transcend maintains a more consistent ratio between the two categories.
 
 % (Extendable)
-One Example where concept drift is visible is, 
+One example where concept drift is visible is, 
 that the size of packaged APKs grows with time \ref{fig:dataset_size_evaluation}.
 The three datasets show different distributions of APK sizes, 
 where Drebin shows the smallest and DexRay the biggest APKs on average.
@@ -142,7 +159,7 @@ When evaluating a model regarding the concept drift of malware,
 the Transcend dataset shows the most potential.
 However, only considering one dataset limits the generalizability of an approach, 
 so the evaluation on multiple datasets is even better.
-One Problem is, that all three datasets only contain APKs where the .dex date is available.
+One problem is, that all three datasets only contain APKs where the .dex date is available.
 The temporal evaluation of Androzoo \ref{fig:androzoo_temporal} showed that this is for most 
 modern APKs not the case.
 It follows that each of the datasets are Biased in their selection of APKs and are 
@@ -170,8 +187,6 @@ therefore not fit for representing the True APK landscape.
     \end{minipage}
 \end{figure*}
 
-
-\newpage
 
 \subsection{Code Evaluation}
 
@@ -218,8 +233,6 @@ the readability is much harder due to the lower level and niche nature.
     \end{minipage}
 \end{figure*}
 
-\newpage
-
 \begin{margintable}[1\baselineskip] % Move table down by 1 line
     \caption{\label{tab:smali_distribution}Smali Statistics Summary for DexRay, Transcend, and Drebin.}
     \footnotesize
@@ -262,8 +275,16 @@ A second observation, is that the DexRay Dataset is highly inbalanced.
 This is apparent both from the Boxplot (figure \ref{fig:smali_class_boxplots}) and also by table \ref{tab:smali_distribution},
 that quantifies the distribution of smali classes by computing the Q1, Median and Q3 values of each of the Datasets.
 When looking further into \ref{tab:smali_distribution} the issue becomes even more apparent. 
-Q1, Median and Q3 differ between the labels by a factor of 35-50, this makes any approach that makes label 
-predictions based on Smali code of that dataset questionable (for example \cite{dexbert,detectbert,dexray}).
+The Q1, Median, and Q3 values differ between the goodware and malware labels by a factor of 35-50, 
+indicating a significant disparity in the number of Smali classes.
+This suggests that any approach relying on Smali code for label predictions within this dataset may 
+lead to biased or misleading results. 
+The imbalance in the DexRay dataset can cause classifiers to learn spurious correlations, 
+as the features extracted from Smali code might not generalize well across the two classes. 
+Consequently, models trained on this dataset might overfit to the dominant class characteristics, 
+leading to artificially inflated performance metrics while failing to generalize to real world distributions. 
+Approaches that utilize Smali based representations on the DexRay dataset, such as those in \cite{dexbert,detectbert,dexray}, 
+must account for this imbalance to ensure reliable and meaningful classification outcomes.
 
 \begin{margintable}[1\baselineskip] % Move table down by 1 line
     \caption{\label{tab:java_distribution}Java Statistics Summary for Drebin, Transcend, and DexRay.}
@@ -308,6 +329,14 @@ This leads to the conclusion, that the DexRay dataset is generally insufficient 
 
 \section{Baseline Creation}
 \label{sec:baseline}
+
+The evaluation metrics utilized in this study include 
+accuracy, precision, recall, and F1 score. 
+These metrics provide a common assessment of model performance in classifying mobile malware. 
+Metrics for all models, are calculated using the binary averaging approach.
+The binary average calculation method considers only the malware class as positive
+and calculates metrics accordingly, giving clear insights into the performance of 
+models in detecting the positive class.
 
 When generating a baseline for mobile malware detection, concept drift hast to be considered.
 Jordaney et al. \cite{transcend} showed that there is a concept drift for android malware.
@@ -409,7 +438,7 @@ The same model achieves an F1 score of 8\% on Drebin, 48\% on Transcend and 93\%
     }
 \end{table}
 
-Applying a more sophisticated model on all three of the features, increses the performance further.
+Applying a more sophisticated model on all three of the features increases the performance further.
 This can be shown by evaluating a decision tree (table \ref{tab:decisiontree}) or a generally higher performing random forest (table \ref{tab:randomforest}) model. 
 Table \ref{tab:randomforest} shows how a random forest algorithm achieves around 70\% F1 score on Drebin and Transcend when 
 trained and tested with the randomly split data.
@@ -473,9 +502,6 @@ this renders the dataset not sufficient for evaluating code based models.
     \end{tabular}%
     }
 \end{table}
-    
-    
-\newpage  
 
 \subsection{DetectBERT}
 \label{sec:detectbert}
@@ -505,7 +531,7 @@ These methods rely on traditional machine learning techniques and therefore
 struggle with capturing the complex relationships within Android application data. 
 In contrast, Transformer based models have demonstrated SOTA 
 performance in various NLP and code understanding tasks \cite{transformer_sota}. 
-This chapter introduces DetectBERT \cite{detectbert}, the first Transformer-based approach examined 
+This chapter introduces DetectBERT \cite{detectbert}, the first Transformer based approach examined 
 in this thesis.
 
 DetectBERT is a static Android malware detection model that utilizes Transformer based architectures for analyzing APK files.
@@ -515,7 +541,7 @@ These representations are subsequently transformed into compact feature embeddin
 a specialized Transformer model developed by the same authors for this task.
 These embeddings serve as inputs to the DetectBERT component, 
 a Transformer architecture that employs Nyström based attention \cite{nystromformer} 
-to effectively manage computational complexity while capturing long-range dependencies. 
+to effectively manage computational complexity while capturing long range dependencies. 
 The embeddings, together with a special CLS token, designed to aggregate global context, 
 are refined through successive layer normalization and Nyström attention layers. 
 This processing aims for, global feature representation encapsulated in the embedding of the CLS token.
@@ -545,7 +571,7 @@ data and testing on newer samples.
 Table \ref{tab:detectbert-results} presents the detection performance of DetectBERT across both datasets 
 and splits. The results indicate that DetectBERT is
 achieving high accuracy and F1 scores, particularly on the DexRay dataset. 
-The model demonstrates a slight decline in performance for time-based splits, 
+The model demonstrates a slight decline in performance for time based splits, 
 likely due to evolving malware patterns. 
 The performance on the subset of the Transend dataset are not as good as 
 on the DexRay dataset.
@@ -592,20 +618,17 @@ simple aggregate statistics, improving its ability to detect malware patterns ef
     \toprule
     \textbf{Dataset} & \textbf{Split} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1} \\ \cmidrule(r){1-2} \cmidrule(lr){3-6}
     DexRay (Subset)     & Random     & 89.14\% & 88.81\% & 89.56\% & 89.19\% \\
-                        & Time-based & 88.94\% & 95.79\% & 81.45\% & 88.04\% \\ \addlinespace
+                        & Time based & 88.94\% & 95.79\% & 81.45\% & 88.04\% \\ \addlinespace
     Transcend (Subset)  & Random     & 82.91\% & 87.45\% & 76.86\% & 81.81\% \\
-                        & Time-based & 80.13\% & 80.91\% & 78.88\% & 79.88\% \\
+                        & Time based & 80.13\% & 80.91\% & 78.88\% & 79.88\% \\
     \bottomrule
     \end{tabular}%
     }
 \end{table}
 
 
-\newpage
-
-\section{Experimntal Setup}
-
-\subsection{General BERT based approach}
+\section{Experimental Setup}
+\label{sec:experimental_setup}
 
 \begin{figure*}[b]
     \centering
@@ -614,8 +637,8 @@ simple aggregate statistics, improving its ability to detect malware patterns ef
         \includegraphics[width=\textwidth]{3_Methodology/bertbased_malwaredetection_schema.png}
         \captionsetup{width=\textwidth}
         \caption{\label{fig:bertbased_malwaredetection_schema}
-        Generalized BERT-based approach for malware detection. 
-        This figure illustrates a blueprint for utilizing BERT models in APK-based 
+        Generalized BERT based approach for malware detection. 
+        This figure illustrates a blueprint for utilizing BERT models in APK based 
         malware detection. 
         The process consists of three main stages: 
         extracting an APK representation [1], 
@@ -626,36 +649,54 @@ simple aggregate statistics, improving its ability to detect malware patterns ef
     \end{minipage}
 \end{figure*}
 
-The experiments conducted in this thesis build upon a generalized paradigm 
-for malware detection, as visualized 
-in figure \ref{fig:bertbased_malwaredetection_schema}. 
-The core idea is that, in order to classify an APK as malicious or benign, 
-it must first be processed through a structured pipeline.
 
-The first step [1] involves extracting an appropriate representation of the APK. 
-This representation serves as the input for the subsequent stages 
-and can be derived from different static attributes of the APK, 
-ensuring that relevant structural and behavioral information is preserved.
+The experiments conducted in this thesis build upon a generalized paradigm for transformer based malware detection, 
+as visualized in figure \ref{fig:bertbased_malwaredetection_schema}. 
+To systematically investigate and improve transformer based models for Android malware detection, 
+this experimental setup explicitly isolates and evaluates each component in the detection pipeline: 
+APK Representation [1], Transformer Encoder [2], and Decision Head [3]. 
+Each component significantly impacts the overall effectiveness and efficiency of the malware detection system, 
+and each offers multiple choices with distinct advantages and challenges.
 
-Next, in step [2], this representation undergoes an embedding process. 
-The embedding is designed to transform the extracted representation into 
-a format suitable for processing further while maintaining essential 
-information and reducing dimensionality. 
-The choice of embedding strategy significantly influences the quality 
-of the learned representation and consequently, the detection performance.
+APK representation [1] involves extracting meaningful and manageable features from APK files. 
+Permissions extracted from the manifest file represent a lightweight, 
+computationally efficient approach but offer limited insight into the application's detailed behavior. 
+Manifest components such as activities, services, and receivers provide additional insights into application behavior 
+but could introduce complexity due to possible obfuscation or non descriptive naming conventions. 
+Decompiled Java code offers extensive behavioral insights, 
+yet its effectiveness can be compromised by obfuscation techniques or by the complexity it entails
+significantly increasing processing requirements. 
+Alternatively, Smali code presents a lower level, 
+detailed representation resilient against certain obfuscation types 
+but introduces interpretability challenges and substantially increased computational complexity.
 
-In the final step [3], the embedded representation is passed to a 
-decision head that generates the final classification. 
-The decision head can take various forms, from simple fully connected layers
-to more complex Transformer based network structures. 
-The effectiveness of the decision head plays a crucial role in 
-ensuring that the model correctly distinguishes between benign 
-and malicious applications.
+The Transformer encoder [2] component transforms the selected APK representation into a numerical embedding 
+suitable for classification. 
+ModernBERT, which employs full attention mechanisms and a large context window (8192 tokens), 
+is highly effective in capturing detailed context. 
+Sparse attention models such as BigBird and Longformer were also explored, 
+as they promise better scalability and efficiency.
+However, they might offer lower embedding quality compared to full attention models. 
+Additionally, specialized models like DexBERT, pretrained specifically on Smali code representations, 
+might be particularly suited for Android malware analysis but may lack generalization 
+capabilities across different APK representations.
+
+Finally, the decision head [3] component converts numerical embeddings into final binary predictions. 
+Simpler approaches, such as using a fully connected layer directly on fixed length embeddings 
+(e.g. CLS token), are computationally efficient and straightforward but risk oversimplification and potential 
+loss of valuable context. 
+Aggregation methods, including average and addition, allow the processing of variable length embeddings by 
+summarizing them into a fixed size representation, 
+but they risk losing detailed contextual information critical for accurate classification. 
+More complex architectures, such as DetectBERT, employ sophisticated pooling mechanisms like 
+Nyström attention to preserve and leverage complex interactions between embeddings, 
+at the cost of increased computational overhead and complexity.
 
 The objective of this thesis is to analyze the capabilities of 
 this architecture by systematically evaluating each of these three 
 core components. By designing experiments that focus on variations 
-in APK representation, embedding methods, and decision heads, 
+in APK representation, embedding methods, and decision heads
+where each segmented is separately exchanged
 the study aims to provide insights into the strengths and limitations 
 of Transformer based malware detection models. 
 The following chapters will further explore each of these stages in detail, 
